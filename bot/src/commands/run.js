@@ -16,7 +16,7 @@ export default {
     run: ({ response }) => {
 
         response({
-            content: `Command Ran Successfully! "Hello World"`
+            content: `Command Ran Successfully!`
         })
     }
 }
