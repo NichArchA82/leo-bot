@@ -1,0 +1,38 @@
+name: Build and Push Stage Container
+
+on:
+  pull_request:
+    types:
+      - opened
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:  
+      - name: Log into ghcr
+        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446 # v3.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Build and push the container
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: ghcr.io/nicharcha82/leo-bot-beta:beta
+            
+      - name: SSH Remote Commands
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          key: ${{ secrets.HOST_SSH_KEY }}
+          host: ${{ secrets.HOST_IP }}
+          username: ${{ secrets.HOST_USERNAME }}
+          script: |
+            docker pull ghcr.io/nicharcha82/leo-bot-beta:beta
+            docker rm -f beta-bot
+            docker run --env-file /root/beta-bot/.env -d -p 5000:5000 --name beta-bot ghcr.io/nicharcha82/leo-bot-beta:beta
