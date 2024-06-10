@@ -33,7 +33,7 @@ export default {
                 },
                 {
                     name: 'reply',
-                    description: 'If the server should reply or send the message',
+                    description: 'If the bot should reply to the interaction, or send the message in the channel',
                     required: true,
                     type: ApplicationCommandOptionType.Boolean,
                 }
@@ -56,6 +56,11 @@ export default {
         {
             name: 'list',
             description: 'lists all the custom commands',
+            type: ApplicationCommandOptionType.Subcommand
+        },
+        {
+            name: 'help',
+            description: 'displays the help menu for commandroles',
             type: ApplicationCommandOptionType.Subcommand
         }
     ],
@@ -131,6 +136,11 @@ export default {
             }
             response({
                 content: `The server has the following Custom Commands: \`${cmds.join('\`, \`')}\``,
+                ephemeral: true,
+            })
+        } else if (subCommand === 'help') {
+            response({
+                content: `customcommand allows you to create your own commands that return a text response. This command has 3 subcommands: create, delete, and list. create takes 4 arguments: name, description, response, and reply. name is what the name of the new slash command will be registered as. The name has to follow discord slash command name rules such as not containing spaces or having any uppercase letters. description will be the description of the new command you are creating, response is text response the command will return when executed. Reply is a true or false value on whether you want to command to reply to the interaction, i.e. User used command, or if it should just send the response in the channel. Note: Discord expects replies to interactions, so if this is false, it will reply to the interaction with a ephemeral message, delete the reply, then send the response in the channel.`,
                 ephemeral: true,
             })
         }
