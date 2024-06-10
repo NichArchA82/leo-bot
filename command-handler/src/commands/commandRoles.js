@@ -204,7 +204,7 @@ export default {
             })
         } else if (subCommand === 'help') {
             response({
-                content: `commandroles allows you to set permission roles for all of Leo Bot commands. Leo Bot checks for the default permission of Discord Administrator, but you are able to give users permissions to run specific commands without having to give them the Administrator permission. This command has 4 subcommands, add, remove, list, and clear. add takes two arguments: the command and the role you want assigned to that role, remove takes two arguments: the command and the role you want removed from that command, list takes one argument: the command you want to list all the roles that you have assigned for that command, and clear takes one argument: the command you want to remove all permission roles from.`,
+                content: `commandroles allows you to set permission roles for all of Leo Bot commands. Leo Bot checks for the default permission of Discord Administrator, but you are able to give users permissions to run specific commands without having to give them the Administrator permission. This command has 4 subcommands: add, remove, list, and clear. add takes two arguments: the command and the role you want assigned to that role, remove takes two arguments: the command and the role you want removed from that command, list takes one argument: the command you want to list all the roles that you have assigned for that command, and clear takes one argument: the command you want to remove all permission roles from.`,
                 ephemeral: true,
             })
         }          
