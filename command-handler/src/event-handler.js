@@ -45,10 +45,10 @@ export default class EventHandler {
 
     registerEvents(client, handler) {
         for (const [event, functions] of this._eventListeners) {
-            client.on(event, function() {
+            client.on(event, (...args) => {
                 for (const func of functions) {
                     try {
-                        func(...arguments, handler)
+                        func(...args, handler);
                     } catch (e) {
                         console.error(e);
                     }
