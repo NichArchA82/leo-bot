@@ -394,7 +394,7 @@ export default {
                     const unixTimestamp = Math.floor(currentDate.getTime() / 1000);
                     const gMessage = document.greeting.replaceAll('<MEMBER>', recruit);
                     const wMessage = document.welcome.replaceAll('<MEMBER>', recruit);
-                    const eMessage = document.eval.replaceAll('<MEMBER>', recruit).replaceAll('<SPONSER>', sponser).replaceAll('<DATE>', `<t:${unixTimestamp}:F>`);
+                    const eMessage = document.eval.replaceAll('<MEMBER>', recruit).replaceAll('<SPONSER>', sponser).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`);
                     const gChannel = await guild.channels.fetch(document.greetChannel);
                     const wChannel = await guild.channels.fetch(document.welChannel);
                     const eChannel = await guild.channels.fetch(document.evalChannel);
