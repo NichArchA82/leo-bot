@@ -7,13 +7,30 @@ const reqString = {
 
 const schema = new mongoose.Schema({
     _id: reqString, // Guild ID
-    greeting: reqString, //the greeting message
+    genGreeting: reqString, //the general greeting message
     promotion: reqString, //the promotion message
-    welcome: reqString, //the message to send in the welcome channel
+    procGreeting: reqString, //the message to send in the inprocessing channel
     eval: reqString, //the message to send in the eval channel
-    greetChannel: reqString, //the greeting channel
-    welChannel: reqString, //the welcome channel
-    evalChannel: reqString //the eval channel
+    genChannel: reqString, //the general greeting channel
+    procChannel: reqString, //the inprocessing channel
+    evalChannel: reqString, //the eval channel
+    roChannel: reqString,
+    evalMessages: [
+        {
+            messageId: {
+                type: String,
+                required: true,
+            },
+            sponsorId: {
+                type: String,
+                required: true,
+            },
+            recruitId: {
+                type: String,
+                required: true,
+            }
+        }
+    ]
 });
 
 export default ({ dbConnection }) => {

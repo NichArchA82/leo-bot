@@ -15,7 +15,7 @@ export default {
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
-                    name: 'recruit-welcome',
+                    name: 'inprocessing-greeting',
                     description: 'The recruit welcome message to set',
                     type: ApplicationCommandOptionType.String,
                     required: true
@@ -27,7 +27,7 @@ export default {
                     required: true
                 },
                 {
-                    name: 'recruit-greeting',
+                    name: 'general-greeting',
                     description: 'The recruit greeting message to set',
                     type: ApplicationCommandOptionType.String,
                     required: true
@@ -39,20 +39,26 @@ export default {
                     required: true
                 },
                 {
-                    name: 'greeting-channel',
-                    description: 'The new greeting channel',
+                    name: 'inprocess-channel',
+                    description: 'The new inprocess channel',
                     type: ApplicationCommandOptionType.Channel,
                     required: true,
                 },
                 {
-                    name: 'welcome-channel',
-                    description: 'The new welcome channel',
+                    name: 'general-channel',
+                    description: 'The new general channel',
                     type: ApplicationCommandOptionType.Channel,
                     required: true,
                 },
                 {
                     name: 'eval-channel',
                     description: 'The new eval channel',
+                    type: ApplicationCommandOptionType.Channel,
+                    required: true,
+                },
+                {
+                    name: 'recruit-office-channel',
+                    description: 'The new recruiting office channel',
                     type: ApplicationCommandOptionType.Channel,
                     required: true,
                 },
@@ -64,8 +70,8 @@ export default {
             type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
                 {
-                    name: 'recruit-greeting',
-                    description: 'Edit the recruit message',
+                    name: 'inprocess-greeting',
+                    description: 'Edit the recruit inprocess greeting',
                     type: ApplicationCommandOptionType.Subcommand,
                     options: [
                         {
@@ -90,8 +96,8 @@ export default {
                     ]
                 },
                 {
-                    name: 'recruit-welcome',
-                    description: 'Edit the recruit message sent in the welcome channel',
+                    name: 'general-greeting',
+                    description: 'Edit the recruit general greeting message',
                     type: ApplicationCommandOptionType.Subcommand,
                     options: [
                         {
@@ -116,7 +122,7 @@ export default {
                     ]
                 },
                 {
-                    name: 'greeting-channel',
+                    name: 'inprocess-channel',
                     description: 'Edit the channel that the greeting is sent in',
                     type: ApplicationCommandOptionType.Subcommand,
                     options: [
@@ -129,7 +135,7 @@ export default {
                     ]
                 },
                 {
-                    name: 'welcome-channel',
+                    name: 'general-channel',
                     description: 'Edit the channel that the welcome is sent in',
                     type: ApplicationCommandOptionType.Subcommand,
                     options: [
@@ -154,6 +160,19 @@ export default {
                         } 
                     ]
                 },
+                {
+                    name: 'recruit-office-channel',
+                    description: 'Edit the channel that the recruit notification is sent in',
+                    type: ApplicationCommandOptionType.Subcommand,
+                    options: [
+                        {
+                            name: 'channel',
+                            description: 'The new recruiting office channel',
+                            type: ApplicationCommandOptionType.Channel,
+                            required: true,
+                        } 
+                    ]
+                },
             ]
         },
         {
@@ -162,7 +181,7 @@ export default {
             type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
                 {
-                    name: 'recruit-greeting',
+                    name: 'recruit-welcome',
                     description: 'Send recruit message',
                     type: ApplicationCommandOptionType.Subcommand,
                     options: [
@@ -173,10 +192,10 @@ export default {
                             required: true,
                         },
                         {
-                            name: 'sponser-user',
-                            description: 'The sponser of the new recruit',
+                            name: 'sponsor-user',
+                            description: 'The sponsor of the new recruit',
                             type: ApplicationCommandOptionType.User,
-                            required: true,
+                            required: false,
                         }
                     ]
                 },
@@ -203,7 +222,7 @@ export default {
     ],
 
     run: async ({ handler, interaction, response, guild }) => {
-        if (!handler.isDbConnected) {
+        if (!handler.isDbConnected) {  console.log('database object deleted')
             response({
                 content: 'db error: No Connection. Contact developers for help',
                 ephemeral: true,
@@ -217,13 +236,14 @@ export default {
         
     
         if (subCommand === 'setup') {
-            const rWmessage = interaction.options.getString('recruit-welcome');
+            const procGreeting = interaction.options.getString('inprocessing-greeting');
             const rPmessage = interaction.options.getString('recruit-promotion');
-            const rGmessage = interaction.options.getString('recruit-greeting');
+            const rGmessage = interaction.options.getString('general-greeting');
             const rEmessage = interaction.options.getString('recruit-eval');
-            const gChannel = interaction.options.getChannel('greeting-channel');
-            const wChannel = interaction.options.getChannel('welcome-channel');
+            const genChannel = interaction.options.getChannel('general-channel');
+            const procChannel = interaction.options.getChannel('inprocess-channel');
             const eChannel = interaction.options.getChannel('eval-channel');
+            const roChannel = interaction.options.getChannel('recruit-office-channel');
             const recruitMessagesSchema = getRecruitMessagesSchema(handler);
 
             await recruitMessagesSchema.findOneAndUpdate({
@@ -231,13 +251,14 @@ export default {
             }, {
                 $set: {
                     _id: guild.id,
-                    greeting: rGmessage,
+                    genGreeting: rGmessage,
                     promotion: rPmessage,
-                    welcome: rWmessage,
+                    procGreeting: procGreeting,
                     eval: rEmessage,
-                    greetChannel: gChannel.id,
-                    welChannel: wChannel.id,
-                    evalChannel: eChannel.id
+                    genChannel: genChannel.id,
+                    procChannel: procChannel.id,
+                    evalChannel: eChannel.id,
+                    roChannel: roChannel
                 }
             }, {
                 upsert: true,
@@ -247,7 +268,7 @@ export default {
                 ephemeral: true,
             });
         } else if (subCommandGroup === 'edit') {
-            if (subCommand === 'recruit-welcome') {
+            if (subCommand === 'inprocess-greeting') {
                     const message = interaction.options.getString('message');
                     const recruitMessagesSchema = getRecruitMessagesSchema(handler);
                     await recruitMessagesSchema.findOneAndUpdate({
@@ -255,7 +276,7 @@ export default {
                     }, {
                         $set: {
                             _id: guild.id,
-                            welcome: message
+                            procGreeting: message
                         }
                     }, {
                         upsert: true,
@@ -283,7 +304,7 @@ export default {
                         content: `Promotion message edited to: ${message}`,
                         ephemeral: true,
                     });
-            } else if (subCommand === 'recruit-greeting') {
+            } else if (subCommand === 'general-greeting') {
                 const message = interaction.options.getString('message')
                 const recruitMessagesSchema = getRecruitMessagesSchema(handler);
                 await recruitMessagesSchema.findOneAndUpdate({
@@ -291,7 +312,7 @@ export default {
                 }, {
                     $set: {
                         _id: guild.id,
-                        greeting: message
+                        genGreeting: message
                     }
                 }, {
                     upsert: true,
@@ -319,7 +340,7 @@ export default {
                     content: `recruit eval message edited to: ${message}`,
                     ephemeral: true,
                 });
-            } else if (subCommand === 'greeting-channel') {
+            } else if (subCommand === 'inprocess-channel') {
                 const channel = interaction.options.getChannel('channel')
                 const recruitMessagesSchema = getRecruitMessagesSchema(handler);
                 await recruitMessagesSchema.findOneAndUpdate({
@@ -327,17 +348,17 @@ export default {
                 }, {
                     $set: {
                         _id: guild.id,
-                        greetChannel: channel
+                        procGreeting: channel
                     }
                 }, {
                     upsert: true,
                 })
 
                 response({
-                    content: `recruit greeting channel edited to: ${channel}`,
+                    content: `recruit inprocess channel edited to: ${channel}`,
                     ephemeral: true,
                 });
-            } else if (subCommand === 'welcome-channel') {
+            } else if (subCommand === 'general-channel') {
                 const channel = interaction.options.getChannel('channel')
                 const recruitMessagesSchema = getRecruitMessagesSchema(handler);
                 await recruitMessagesSchema.findOneAndUpdate({
@@ -345,14 +366,14 @@ export default {
                 }, {
                     $set: {
                         _id: guild.id,
-                        welChannel: channel
+                        genChannel: channel
                     }
                 }, {
                     upsert: true,
                 })
 
                 response({
-                    content: `recruit welcome channel edited to: ${channel}`,
+                    content: `recruit general channel edited to: ${channel}`,
                     ephemeral: true,
                 });
             } else if (subCommand === 'eval-channel') {
@@ -373,15 +394,33 @@ export default {
                     content: `recruit eval channel edited to: ${channel}`,
                     ephemeral: true,
                 });
+            } else if (subCommand === 'recruit-office-channel') { 
+                const channel = interaction.options.getChannel('channel')
+                const recruitMessagesSchema = getRecruitMessagesSchema(handler);
+                await recruitMessagesSchema.findOneAndUpdate({
+                    _id: guild.id,
+                }, {
+                    $set: {
+                        _id: guild.id,
+                        roChannel: channel
+                    }
+                }, {
+                    upsert: true,
+                })
+
+                response({
+                    content: `recruit office channel edited to: ${channel}`,
+                    ephemeral: true,
+                });
             }
         } else if (subCommandGroup === 'send') {
-            if (subCommand === 'recruit-greeting') {
+            if (subCommand === 'recruit-welcome') {
                     const recruit = interaction.options.getUser('recruited-user');
-                    const sponser = interaction.options.getUser('sponser-user');
+                    const sponsor = interaction.options.getUser('sponsor-user') ?? 'None';
                     const recruitMessagesSchema = getRecruitMessagesSchema(handler);
                     const document = await recruitMessagesSchema.findOne({ _id: guild.id });
 
-                    if (!document || !document.greeting?.length || !document.welcome?.length || !document.eval?.length || !document.greetChannel?.length || !document.welChannel?.length || !document.evalChannel?.length) {
+                    if (!document || !document.genGreeting?.length || !document.procGreeting?.length || !document.eval?.length || !document.genChannel?.length || !document.procChannel?.length || !document.evalChannel?.length) {
                         response({
                             content: `error. Not all required fields found in the database. Please run /recruit setup first.`,
                             ephemeral: true,
@@ -392,14 +431,15 @@ export default {
                     const currentDate = new Date();
                     currentDate.setDate(currentDate.getDate() + 7);
                     const unixTimestamp = Math.floor(currentDate.getTime() / 1000);
-                    const gMessage = document.greeting.replaceAll('<MEMBER>', recruit);
-                    const wMessage = document.welcome.replaceAll('<MEMBER>', recruit);
-                    const eMessage = document.eval.replaceAll('<MEMBER>', recruit).replaceAll('<SPONSER>', sponser).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`);
-                    const gChannel = await guild.channels.fetch(document.greetChannel);
-                    const wChannel = await guild.channels.fetch(document.welChannel);
-                    const eChannel = await guild.channels.fetch(document.evalChannel);
 
-                    if (!gChannel || !wChannel || !eChannel) {
+                    const genGreetMsg = document.genGreeting.replaceAll('<MEMBER>', recruit);
+                    const inProcGreetMsg = document.procGreeting.replaceAll('<MEMBER>', recruit);
+                    const eMessage = document.eval.replaceAll('<MEMBER>', recruit).replaceAll('<SPONSOR>', sponsor).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`);
+                    const genChannel = await guild.channels.fetch(document.genChannel);
+                    const procChannel = await guild.channels.fetch(document.procChannel);
+                    const evalChannel = await guild.channels.fetch(document.evalChannel);
+
+                    if (!genChannel || !procChannel || !evalChannel) {
                         response({
                             content: `error sending messages. Incorrect channel ids specified`,
                             ephemeral: true,
@@ -407,9 +447,36 @@ export default {
                         return;
                     }
 
-                    await gChannel.send(gMessage)
-                    await wChannel.send(wMessage)
-                    await eChannel.send(eMessage)
+                    try {
+                        await genChannel.send(genGreetMsg)
+                        await procChannel.send(inProcGreetMsg)
+                        const evalMsg = await evalChannel.send({
+                            content: `${eMessage}`,
+                            allowedMentions: {
+                                roles: [],
+                                users: [],
+                            },
+                        })
+                        await recruitMessagesSchema.findOneAndUpdate(
+                            { _id: guild.id },
+                            {
+                                $push: {
+                                    evalMessages: {
+                                        messageId: evalMsg.id,
+                                        sponsorId: typeof sponsor === 'object' ? sponsor.id : 'None',
+                                        recruitId: recruit.id,
+                                    }
+                                }
+                            },
+                            { upsert: true }
+                        );
+                    } catch (err) {
+                        response({
+                            content: `error sending recruit messages.`,
+                            ephemeral: true,
+                        });
+                        return;
+                    }
 
                     response({
                         content: `Recruit messages sent.`,
