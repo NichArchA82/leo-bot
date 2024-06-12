@@ -222,7 +222,7 @@ export default {
     ],
 
     run: async ({ handler, interaction, response, guild }) => {
-        if (!handler.isDbConnected) {
+        if (!handler.isDbConnected) {  console.log('database object deleted')
             response({
                 content: 'db error: No Connection. Contact developers for help',
                 ephemeral: true,
@@ -431,6 +431,7 @@ export default {
                     const currentDate = new Date();
                     currentDate.setDate(currentDate.getDate() + 7);
                     const unixTimestamp = Math.floor(currentDate.getTime() / 1000);
+
                     const genGreetMsg = document.genGreeting.replaceAll('<MEMBER>', recruit);
                     const inProcGreetMsg = document.procGreeting.replaceAll('<MEMBER>', recruit);
                     const eMessage = document.eval.replaceAll('<MEMBER>', recruit).replaceAll('<SPONSOR>', sponsor).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`);
