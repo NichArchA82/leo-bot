@@ -415,11 +415,20 @@ export default {
             }
         } else if (subCommandGroup === 'send') {
             if (subCommand === 'recruit-welcome') {
-                    const recruit = interaction.options.getUser('recruited-user');
+                    const user = interaction.options.getUser('recruited-user');
                     const sponsor = interaction.options.getUser('sponsor-user') ?? 'None';
                     const minEvalValue = sponsor === 'None' ? 10 : 8;
                     const recruitMessagesSchema = getRecruitMessagesSchema(handler);
                     const document = await recruitMessagesSchema.findOne({ _id: guild.id });
+                    let displayName;
+                    try {
+                        // Fetch the GuildMember object using the user's ID
+                        const guild = interaction.guild; // Assuming this is used in a command context where the guild is available
+                        const member = await guild.members.fetch(user.id);
+                        displayName = member.displayName; // This will be the nickname in the guild, or the username if no nickname is set
+                    } catch (error) {
+                        console.error('Error fetching member:', error);
+                    }
 
                     if (!document || !document.genGreeting?.length || !document.procGreeting?.length || !document.eval?.length || !document.genChannel?.length || !document.procChannel?.length || !document.evalChannel?.length) {
                         response({
@@ -433,9 +442,9 @@ export default {
                     currentDate.setDate(currentDate.getDate() + 7);
                     const unixTimestamp = Math.floor(currentDate.getTime() / 1000);
 
-                    const genGreetMsg = document.genGreeting.replaceAll('<MEMBER>', recruit);
-                    const inProcGreetMsg = document.procGreeting.replaceAll('<MEMBER>', recruit);
-                    const eMessage = document.eval.replaceAll('<MEMBER>', recruit).replaceAll('<SPONSOR>', sponsor).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`).replaceAll('<MIN_EVAL>', minEvalValue);
+                    const genGreetMsg = document.genGreeting.replaceAll('<MEMBER>', user);
+                    const inProcGreetMsg = document.procGreeting.replaceAll('<MEMBER>', user);
+                    const eMessage = document.eval.replaceAll('<MEMBER>', displayName).replaceAll('<SPONSOR>', sponsor).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`).replaceAll('<MIN_EVAL>', minEvalValue);
                     const genChannel = await guild.channels.fetch(document.genChannel);
                     const procChannel = await guild.channels.fetch(document.procChannel);
                     const evalChannel = await guild.channels.fetch(document.evalChannel);
@@ -465,7 +474,7 @@ export default {
                                     evalMessages: {
                                         messageId: evalMsg.id,
                                         sponsorId: typeof sponsor === 'object' ? sponsor.id : 'None',
-                                        recruitId: recruit.id,
+                                        recruitId: user.id,
                                     }
                                 }
                             },
