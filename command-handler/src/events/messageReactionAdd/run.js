@@ -49,19 +49,34 @@ export default async (reaction, _, handler) => {
                     if (emoji === '✅') checks -= 1;
                     else if (emoji === '❌') concerns -= 1;
                 }
+                if (emoji !== '✅' && emoji !== '❌') {
+                    await reaction.users.remove(user.id);
+                    await user.send({
+                        content: `Invalid reaction please use \`✅\` in favor or \`❌\` to raise a concern. If you raise a concern, please post a rational on why`
+                    })
+                }
+                if (emoji === '❌') {
+                    await roChannel.send({
+                        content: `${user} raised a concern against recruit "${member}" ( https://discord.com/channels/${message.guild.id}/${message.channelId}/${message.id} )`,
+                        allowedMentions: {
+                            roles: [],
+                            users: [],
+                        },
+                    })
+                }
             }
         }
-        if (checks === 1 && concerns === 0 && sponsor !== 'None') {
+        if (checks === 8 && concerns === 0 && sponsor !== 'None') {
             roChannel.send({
-                content: `Recruit "${member}" received all their signoffs`,
+                content: `Recruit "${member}" received all their signoffs ( https://discord.com/channels/${message.guild.id}/${message.channelId}/${message.id} )`,
                 allowedMentions: {
                     roles: [],
                     users: [],
                 },
             })
-        } else if (checks === 10 && concerns === 0 && sponsor === 'none') {
-            roChannel.send({
-                content: `Recruit "${member}" received all their signoffs`,
+        } else if (checks === 10 && concerns === 0 && sponsor === 'None') {
+            await roChannel.send({
+                content: `Recruit "${member}" received all their signoffs ( https://discord.com/channels/${message.guild.id}/${message.channelId}/${message.id} )`,
                 allowedMentions: {
                     roles: [],
                     users: [],
