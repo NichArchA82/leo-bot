@@ -417,6 +417,7 @@ export default {
             if (subCommand === 'recruit-welcome') {
                     const recruit = interaction.options.getUser('recruited-user');
                     const sponsor = interaction.options.getUser('sponsor-user') ?? 'None';
+                    const minEvalValue = sponsor === 'None' ? 10 : 8;
                     const recruitMessagesSchema = getRecruitMessagesSchema(handler);
                     const document = await recruitMessagesSchema.findOne({ _id: guild.id });
 
@@ -434,7 +435,7 @@ export default {
 
                     const genGreetMsg = document.genGreeting.replaceAll('<MEMBER>', recruit);
                     const inProcGreetMsg = document.procGreeting.replaceAll('<MEMBER>', recruit);
-                    const eMessage = document.eval.replaceAll('<MEMBER>', recruit).replaceAll('<SPONSOR>', sponsor).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`);
+                    const eMessage = document.eval.replaceAll('<MEMBER>', recruit).replaceAll('<SPONSOR>', sponsor).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`).replaceAll('<MIN_EVAL>', minEvalValue);
                     const genChannel = await guild.channels.fetch(document.genChannel);
                     const procChannel = await guild.channels.fetch(document.procChannel);
                     const evalChannel = await guild.channels.fetch(document.evalChannel);
@@ -503,7 +504,7 @@ export default {
                 }
         } else if (subCommand === 'help') {
             response({
-                content: `${message}`,
+                content: `The recruit command has 3 subcommand groups: setup, edit, and send. Setup will walk users through the entire setup process for the messages. The following placeholders are: <MEMBER> this will replace the part of the message with the recruit (used in all three messages), <DATE> this will replace the part of the message with the current date with 7 days added (min eval of a week)(used in eval message only), <MIN_EVAL> This will replace the part of the message with the number of checks required, 8 for sponsored recruits 10 for non-sponsored(used in eval message only), and <SPONSOR> this will replace the part of the message with the sponsored user, or None if no sponsor was provided. (Eval message only). using recruit send recruit-welcome will send all three messages, and the edit commands are for individually editing the messages.`,
                 ephemeral: true,
             });
         }
