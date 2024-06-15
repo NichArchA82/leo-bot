@@ -10,8 +10,8 @@ app.get('/', (req, res) => {
 
 // Path to your SSL certificate and key
 const sslOptions = {
-    key: fs.readFileSync('/app/server/privkey.pem'),
-    cert: fs.readFileSync('/app/server/fullchain.pem')
+    key: fs.readFileSync('/app/certificates'),
+    cert: fs.readFileSync('/app/certificates')
   };
   
   // Create HTTPS server

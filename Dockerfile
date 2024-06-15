@@ -3,6 +3,9 @@ FROM node:20-alpine
 # Set the working directory to /app
 WORKDIR /app
 
+# Create a directory for mounting SSL certificates
+RUN mkdir -p /app/certificates
+
 # Copy all project files
 COPY bot/ bot/
 COPY command-handler/ command-handler/
