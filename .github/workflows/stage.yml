@@ -35,4 +35,9 @@ jobs:
           script: |
             docker pull ghcr.io/nicharcha82/leo-bot-beta:beta
             docker rm -f beta-bot
-            docker run --env-file /root/beta-bot/.env -d -p 5000:5000 --name beta-bot ghcr.io/nicharcha82/leo-bot-beta:beta
+            docker run --env-file /root/beta-bot/.env -d \
+            -p 5000:5000 \
+            -v /etc/letsencrypt/live/mewtroid.com:/etc/server \
+            --name beta-bot \
+            --restart unless-stopped \
+            ghcr.io/nicharcha82/leo-bot-beta:beta
