@@ -35,4 +35,9 @@ jobs:
           script: |
             docker pull ghcr.io/nicharcha82/leo-bot-latest:latest
             docker rm -f leo-bot
-            docker run --env-file /root/leo-bot/.env -d -p 8080:5000 --name leo-bot ghcr.io/nicharcha82/leo-bot-latest:latest
+            docker run --env-file /root/leo-bot/.env -d \
+            -p 443:5000 \
+            -v /root/leo-bot/certs:/app/certificates \
+            --name leo-bot \
+            --restart unless-stopped \
+            ghcr.io/nicharcha82/leo-bot-latest:latest
