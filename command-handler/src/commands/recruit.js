@@ -475,6 +475,7 @@ export default {
                                         messageId: evalMsg.id,
                                         sponsorId: typeof sponsor === 'object' ? sponsor.id : 'None',
                                         recruitId: user.id,
+                                        minEvalDate: currentDate.setUTCHours(0, 0, 0, 0),
                                     }
                                 }
                             },
