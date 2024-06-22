@@ -39,7 +39,7 @@ export default (client, handler) => {
                     else if (emoji === '❌') concerns = reaction.count
                 }
 
-                if (checks >= 1 && sponsor !== 'None') {
+                if (checks >= 8 && sponsor !== 'None') {
                     roChannel.send({
                         content: `Recruit "${member}" received all their signoffs ( https://discord.com/channels/${message.guild.id}/${message.channelId}/${message.id} )`,
                         allowedMentions: {
