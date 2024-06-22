@@ -28,6 +28,10 @@ const schema = new mongoose.Schema({
             recruitId: {
                 type: String,
                 required: true,
+            },
+            minEvalDate: {
+                type: Date,
+                required: true,
             }
         }
     ]
