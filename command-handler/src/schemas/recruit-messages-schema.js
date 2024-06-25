@@ -32,6 +32,10 @@ const schema = new mongoose.Schema({
             minEvalDate: {
                 type: Date,
                 required: true,
+            },
+            cooldown: {
+                type: Date,
+                required: true,
             }
         }
     ]

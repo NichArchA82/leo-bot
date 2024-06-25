@@ -421,6 +421,7 @@ export default {
                     const recruitMessagesSchema = getRecruitMessagesSchema(handler);
                     const document = await recruitMessagesSchema.findOne({ _id: guild.id });
                     let displayName;
+                    let cooldown;
                     try {
                         // Fetch the GuildMember object using the user's ID
                         const guild = interaction.guild; // Assuming this is used in a command context where the guild is available
@@ -439,8 +440,16 @@ export default {
                     }
 
                     const currentDate = new Date();
-                    currentDate.setDate(currentDate.getDate() + 7);
-                    const unixTimestamp = Math.floor(currentDate.getTime() / 1000);
+                    const minEvalDate = new Date(currentDate);
+                    minEvalDate.setDate(currentDate.getDate() + 7);
+                    const unixTimestamp = Math.floor(minEvalDate.getTime() / 1000);
+                    if (sponsor !== 'None') {
+                        cooldown = new Date(currentDate);
+                        // cooldown.setHours(currentDate.getHours() + 12);
+                        cooldown.setMinutes(currentDate.getMinutes() + 1);
+                    } else {
+                        cooldown = new Date(currentDate);
+                    }
 
                     const genGreetMsg = document.genGreeting.replaceAll('<MEMBER>', user);
                     const inProcGreetMsg = document.procGreeting.replaceAll('<MEMBER>', user);
@@ -475,7 +484,8 @@ export default {
                                         messageId: evalMsg.id,
                                         sponsorId: typeof sponsor === 'object' ? sponsor.id : 'None',
                                         recruitId: user.id,
-                                        minEvalDate: currentDate.setUTCHours(0, 0, 0, 0),
+                                        minEvalDate: minEvalDate.setUTCHours(0, 0, 0, 0),
+                                        cooldown: cooldown
                                     }
                                 }
                             },

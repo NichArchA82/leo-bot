@@ -2,11 +2,13 @@ import getRecruitMessagesSchema from '../../schemas/recruit-messages-schema.js';
 
 export default async (reaction, user, handler) => {
     try {
-        const message = await reaction.message.fetch()
+        const message = await reaction.message.fetch();
+        const currentDate = new Date();
         let evalMsg = false;
         let roChannel;
         let sponsor;
         let member;
+        let cooldown;
         const recruitMessagesSchema = getRecruitMessagesSchema(handler);
         const document = await recruitMessagesSchema.findOne({ _id: message.guild.id });
         if (document?.roChannel) {
@@ -24,11 +26,21 @@ export default async (reaction, user, handler) => {
                 member = await message.guild.members.fetch(msg.recruitId);
                 sponsor = msg.sponsorId;
                 evalMsg = true;
+                cooldown = new Date(msg.cooldown);
                 break;
             }
         }
         
-        if (!evalMsg) return; 
+        if (!evalMsg) return;
+
+        if (currentDate < cooldown) {
+            const cooldownTimestamp = Math.floor(cooldown.getTime() / 1000);
+            await reaction.users.remove(user.id);
+            await user.send({
+                content: `This NREC has only just joined NATO and is under a 12-hour cool down before we are accepting evaluations. From that point please ensure you have played in at least one match with them after they officially became an NREC before returning to provide your evaluation after <t:${cooldownTimestamp}:F>, thank you 🫡`
+            });
+            return;
+        }
 
         if (user.id === sponsor) {
             await reaction.users.remove(user.id);
