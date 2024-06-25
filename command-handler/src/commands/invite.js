@@ -30,18 +30,29 @@ export default {
                 ephemeral: true,
             });
         } else {
-            const member = await guild.members.fetch(sponsor);
-            await member.send({
-                content: `${invite.url}`
-            });
-            response({
-                content: `${member} was sent invite: ${invite.url}`,
-                allowedMentions: {
-                    roles: [],
-                    users: []
-                },
-                ephemeral: true,
-            });
+            try {
+                const member = await guild.members.fetch(sponsor);
+                await member.send({
+                    content: `${invite.url}`
+                });
+                response({
+                    content: `${member} was sent invite: ${invite.url}`,
+                    allowedMentions: {
+                        roles: [],
+                        users: []
+                    },
+                    ephemeral: true,
+                });
+            } catch {
+                response({
+                    content: `Error sending invite: ${invite.url}`,
+                    allowedMentions: {
+                        roles: [],
+                        users: []
+                    },
+                    ephemeral: true,
+                });  
+            }
         }
     }
 }
