@@ -445,8 +445,8 @@ export default {
                     const unixTimestamp = Math.floor(minEvalDate.getTime() / 1000);
                     if (sponsor !== 'None') {
                         cooldown = new Date(currentDate);
-                        // cooldown.setHours(currentDate.getHours() + 12);
-                        cooldown.setMinutes(currentDate.getMinutes() + 1);
+                        cooldown.setHours(currentDate.getHours() + 12);
+                        // cooldown.setMinutes(currentDate.getMinutes() + 1);
                     } else {
                         cooldown = new Date(currentDate);
                     }
@@ -517,6 +517,17 @@ export default {
                     }
 
                     const message = document.promotion.replaceAll('<MEMBER>', member);
+                    await recruitMessagesSchema.findOneAndUpdate(
+                        { _id: guild.id },
+                        {
+                            $push: {
+                                comparisons: {
+                                    memberId: member.id
+                                }
+                            }
+                        },
+                        { upsert: true }
+                    );
                     response({
                         content: `${message}`,
                         ephemeral: false,

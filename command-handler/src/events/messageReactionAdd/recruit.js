@@ -9,6 +9,8 @@ export default async (reaction, user, handler) => {
         let sponsor;
         let member;
         let cooldown;
+        let promoDate;
+        let createdDate;
         const recruitMessagesSchema = getRecruitMessagesSchema(handler);
         const document = await recruitMessagesSchema.findOne({ _id: message.guild.id });
         if (document?.roChannel) {
@@ -27,7 +29,14 @@ export default async (reaction, user, handler) => {
                 sponsor = msg.sponsorId;
                 evalMsg = true;
                 cooldown = new Date(msg.cooldown);
+                createdDate = new Date(msg.createdAt);
                 break;
+            }
+        }
+
+        for (const nMember of document.comparisons) {
+            if (user.id === nMember.memberId) {
+                promoDate = new Date(nMember.promotionDate); 
             }
         }
         
@@ -37,25 +46,31 @@ export default async (reaction, user, handler) => {
             const cooldownTimestamp = Math.floor(cooldown.getTime() / 1000);
             await reaction.users.remove(user.id);
             await user.send({
-                content: `This NREC has only just joined NATO and is under a 12-hour cool down before we are accepting evaluations. From that point please ensure you have played in at least one match with them after they officially became an NREC before returning to provide your evaluation after <t:${cooldownTimestamp}:F>, thank you 🫡`
+                content: `This NREC has only just joined NATO and is under a 12-hour cool down until <t:${cooldownTimestamp}:F> before we are accepting evaluations. From that point please ensure you have played in at least one match with them **__after__** they officially became an NREC before returning to provide your evaluation, thank you 🫡`
             });
             return;
         }
 
-        if (user.id === sponsor) {
+        if (user.id === sponsor && reaction.emoji.name === '✅') {
             await reaction.users.remove(user.id);
             await user.send({
                 content: `Sponsors cannot check off their own recruit. Your check has been removed`,
                 ephemeral: true
             });
-            if (reaction.emoji.name === '✅') checks -= 1;
-            else if (reaction.emoji.name === '❌') concerns -= 1;
         }
         else if (reaction.emoji.name !== '✅' && reaction.emoji.name !== '❌') {
             await reaction.users.remove(user.id);
             await user.send({
                 content: `Invalid reaction please use \`✅\` in favor or \`❌\` to raise a concern. If you raise a concern, please post a rational on why`
-            })
+            });
+        } else if (promoDate) {
+            if (promoDate > createdDate && reaction.emoji.name === '✅') {
+                const promoDateTimestamp = Math.floor(promoDate.getTime() / 1000);
+                await reaction.users.remove(user.id);
+                await user.send({
+                    content: `You became a full NATO member at <t:${promoDateTimestamp}:F>, you may only sign off NRECs who joined NATO after this point. Thank you for dedication to the recruitment process. 🫡`
+                });
+            }
         }
         if (reaction.emoji.name === '❌') {
             await roChannel.send({
