@@ -5,9 +5,9 @@ import 'dotenv/config';
 export default (client, handler) => {
     cron.schedule('0 0 * * *', async () => {
         try {
+            console.log('schedule firing')
             const recruitMessagesSchema = getRecruitMessagesSchema(handler);
             const currentDate = new Date();
-            currentDate.setUTCHours(0, 0, 0, 0); // Set time to 00:00:00.000 UTC
             const document = await recruitMessagesSchema.findOne({ _id: process.env.EVENT_GUILDS });
             if (!document) return;
 
@@ -20,6 +20,22 @@ export default (client, handler) => {
                     roChannel = await client.channels.fetch(document.roChannel);
                 }
             }
+
+            for (const nMember of document.comparisons) {
+                if (currentDate > nMember.removeDate) {
+                    await recruitMessagesSchema.findOneAndUpdate({
+                        _id: process.env.EVENT_GUILDS
+                    }, {
+                        $pull: {
+                            comparisons: {
+                                memberId: nMember.memberId
+                            }
+                        }
+                    })
+                }
+            }
+
+            currentDate.setUTCHours(0, 0, 0, 0); // Set time to 00:00:00.000 UTC
 
             const filteredEvalMessages = document.evalMessages.filter(evalMessage => {
                 return new Date(evalMessage.minEvalDate) <= currentDate;

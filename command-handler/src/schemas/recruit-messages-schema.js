@@ -18,20 +18,41 @@ const schema = new mongoose.Schema({
     evalMessages: [
         {
             messageId: {
-                type: String,
+                type: String, //discord id of the message
                 required: true,
             },
             sponsorId: {
-                type: String,
+                type: String, //discord id of the sponsor
                 required: true,
             },
             recruitId: {
-                type: String,
+                type: String, //discord it of the recruit
                 required: true,
             },
             minEvalDate: {
-                type: Date,
+                type: Date, //that that the eval will be put in
                 required: true,
+            },
+            cooldown: {
+                type: Date, //date for the cooldown that should be applied
+                required: true,
+            },
+            createdAt: {
+                type: Date, //date the message was created at for cooldowns and comparisons.
+                default: Date.now,
+            }
+        }
+    ],
+    comparisons: [ //used to make sure evaluations don't overlap
+        {
+            memberId: reqString,
+            promotionDate: {
+                type: Date,
+                default: Date.now,
+            },
+            removeDate: {
+                type: Date,
+                default: () => new Date(Date.now() + (60 * 24 * 60 * 60 * 1000)), // 60 days in milliseconds
             }
         }
     ]
