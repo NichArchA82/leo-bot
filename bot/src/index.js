@@ -3,7 +3,7 @@ import CH from 'command-handler';
 import path from 'path';
 import mongoose from 'mongoose';
 import 'dotenv/config';
-// import 'server';
+import 'server';
 
 const client = new Client({
     intents: [
