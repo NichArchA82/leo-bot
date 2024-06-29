@@ -215,6 +215,71 @@ export default {
             ]
         },
         {
+            name: 'preview',
+            description: 'preview messages',
+            type: ApplicationCommandOptionType.SubcommandGroup,
+            options: [
+                {
+                    name: 'inprocess-greeting',
+                    description: 'Send inprocess message in current channel',
+                    type: ApplicationCommandOptionType.Subcommand,
+                    options: [
+                        {
+                            name: 'recruited-user',
+                            description: 'The new recruit',
+                            type: ApplicationCommandOptionType.User,
+                            required: true,
+                        }
+                    ]
+                },
+                {
+                    name: 'general-greeting',
+                    description: 'Send the general greeting message in current channel',
+                    type: ApplicationCommandOptionType.Subcommand,
+                    options: [
+                        {
+                            name: 'recruited-user',
+                            description: 'The new recruit',
+                            type: ApplicationCommandOptionType.User,
+                            required: true,
+                        }
+                    ]
+                },
+                {
+                    name: 'eval-message',
+                    description: 'Send the eval message in current channel',
+                    type: ApplicationCommandOptionType.Subcommand,
+                    options: [
+                        {
+                            name: 'recruited-user',
+                            description: 'The new recruit',
+                            type: ApplicationCommandOptionType.User,
+                            required: true,
+                        },
+                        {
+                            name: 'sponsor-user',
+                            description: 'The sponsor of the new recruit',
+                            type: ApplicationCommandOptionType.User,
+                            required: false,
+                        }
+                    ]
+                },
+                {
+                    name: 'recruit-promotion',
+                    description: 'Send promotion message in current channel',
+                    type: ApplicationCommandOptionType.Subcommand,
+                    options: [
+                        {
+                            name: 'promoted-user',
+                            description: 'promoted member',
+                            type: ApplicationCommandOptionType.User,
+                            required: true,
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             name: 'help',
             description: 'displays the help menu for commandroles',
             type: ApplicationCommandOptionType.Subcommand
@@ -534,9 +599,111 @@ export default {
                         ephemeral: false,
                     });
                 }
+        } else if (subCommandGroup === 'preview') {
+            if (subCommand === 'inprocess-greeting') {
+                const member = interaction.options.getUser('recruited-user');
+                const recruitMessagesSchema = getRecruitMessagesSchema(handler);
+                const document = await recruitMessagesSchema.findOne({ _id: guild.id });
+
+                if (!document || !document.procGreeting?.length) {
+                    response({
+                        content: `inprocess message not found. Please set one with the /recruit edit inprocess-greeting first`,
+                        ephemeral: true,
+                    });
+                    return;
+                }
+
+                const message = document.procGreeting.replaceAll('<MEMBER>', member);
+    
+                response({
+                    content: `${message}`,
+                    ephemeral: false,
+                });
+            } else if (subCommand === 'general-greeting') {
+                    const member = interaction.options.getUser('recruited-user');
+                    const recruitMessagesSchema = getRecruitMessagesSchema(handler);
+                    const document = await recruitMessagesSchema.findOne({ _id: guild.id });
+
+                    if (!document || !document.genGreeting?.length) {
+                        response({
+                            content: `general greeting message not found. Please set one with the /recruit edit general-greeting`,
+                            ephemeral: true,
+                        });
+                        return;
+                    }
+
+                    const message = document.genGreeting.replaceAll('<MEMBER>', member);
+        
+                    response({
+                        content: `${message}`,
+                        ephemeral: false,
+                    });
+            } else if (subCommand === 'eval-message') {
+                    const user = interaction.options.getUser('recruited-user');
+                    const sponsor = interaction.options.getUser('sponsor-user') ?? 'None';
+                    const minEvalValue = sponsor === 'None' ? 10 : 8;
+                    let displayName;
+                    let cooldown;
+                    try {
+                            // Fetch the GuildMember object using the user's ID
+                            const guild = interaction.guild; // Assuming this is used in a command context where the guild is available
+                            const member = await guild.members.fetch(user.id);
+                            displayName = member.displayName; // This will be the nickname in the guild, or the username if no nickname is set
+                        } catch (error) {
+                            console.error('Error fetching member:', error);
+                        }
+                    const recruitMessagesSchema = getRecruitMessagesSchema(handler);
+                    const document = await recruitMessagesSchema.findOne({ _id: guild.id });
+
+                    if (!document || !document.eval?.length) {
+                        response({
+                            content: `eval message not found. Please set one with the /recruit edit recruit-eval`,
+                            ephemeral: true,
+                        });
+                        return;
+                    }
+
+                    const currentDate = new Date();
+                    const minEvalDate = new Date(currentDate);
+                    minEvalDate.setDate(currentDate.getDate() + 7);
+                    const unixTimestamp = Math.floor(minEvalDate.getTime() / 1000);
+                    if (sponsor !== 'None') {
+                        cooldown = new Date(currentDate);
+                        cooldown.setHours(currentDate.getHours() + 12);
+                    } else {
+                        cooldown = new Date(currentDate);
+                    }
+
+                    const cooldownTimestamp = Math.floor(cooldown.getTime() / 1000);
+
+                    const message = document.eval.replaceAll('<MEMBER>', displayName).replaceAll('<SPONSOR>', sponsor).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`).replaceAll('<MIN_EVAL>', minEvalValue).replaceAll('<COOLDOWN>', `<t:${cooldownTimestamp}:F>`);
+        
+                    response({
+                        content: `${message}`,
+                        ephemeral: false,
+                    });
+            } else if (subCommand === 'recruit-promotion') {
+                const member = interaction.options.getUser('promoted-user');
+                const recruitMessagesSchema = getRecruitMessagesSchema(handler);
+                const document = await recruitMessagesSchema.findOne({ _id: guild.id });
+
+                if (!document || !document.promotion?.length) {
+                    response({
+                        content: `promotion-message not found. Please set one with the /recruit edit promotion-message first`,
+                        ephemeral: true,
+                    });
+                    return;
+                }
+
+                const message = document.promotion.replaceAll('<MEMBER>', member);
+                response({
+                    content: `${message}`,
+                    ephemeral: false,
+                });
+            }
         } else if (subCommand === 'help') {
             response({
-                content: `The recruit command has 3 subcommand groups: setup, edit, and send. Setup will walk users through the entire setup process for the messages. The following placeholders are: <MEMBER> this will replace the part of the message with the recruit (used in all three messages), <DATE> this will replace the part of the message with the current date with 7 days added (min eval of a week)(used in eval message only), <MIN_EVAL> This will replace the part of the message with the number of checks required, 8 for sponsored recruits 10 for non-sponsored(used in eval message only), and <SPONSOR> this will replace the part of the message with the sponsored user, or None if no sponsor was provided. (Eval message only). using recruit send recruit-welcome will send all three messages, and the edit commands are for individually editing the messages.`,
+                content: `The recruit command has 4 subcommand groups: setup, edit, send, and preview. Setup will walk users through the entire setup process for the messages. The following placeholders are: <MEMBER> this will replace the part of the message with the recruit (used in all three messages), <DATE> this will replace the part of the message with the current date with 7 days added (min eval of a week)(used in eval message only), <MIN_EVAL> This will replace the part of the message with the number of checks required, 8 for sponsored recruits 10 for non-sponsored(used in eval message only), <SPONSOR> this will replace the part of the message with the sponsored user, or None if no sponsor was provided. (Eval message only), and <COOLDOWN> this will replace the part of the message with the cooldown before evaluations are accepted. using recruit send recruit-welcome will send all three messages, the edit commands are for individually editing the messages, and the preview command will send a preview of the messages in each channel the command is ran, with no restrictions imposed on them.`,
                 ephemeral: true,
             });
         }
