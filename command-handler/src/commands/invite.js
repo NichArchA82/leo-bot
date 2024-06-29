@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
+import { ApplicationCommandOptionType, InteractionResponseType, PermissionFlagsBits } from 'discord.js';
 import commandTypes from '../cmd-handler/command-types.js';
 
 export default {
@@ -19,11 +19,20 @@ export default {
     run: async ({ interaction, response, args, guild }) => {
         const [sponsor] = (args && args.length > 0) ? args : ['None'];
         const maxAge = 7 * 24 * 60 * 60; // 1 week
-        const invite = await interaction.guild.invites.create(interaction.channel.id, {
-        maxAge: maxAge,
-        maxUses: 1,
-        unique: true,
-        });
+        let invite;
+        try {
+            invite = await interaction.guild.invites.create(interaction.channel.id, {
+            maxAge: maxAge,
+            maxUses: 1,
+            unique: true,
+            });
+        } catch {
+            response({
+                content: `Error creating invite. Please make sure it is ran in a valid text channel for invite channel. Threads and Forum channels are not valid`,
+                ephemeral: true
+            });
+            return;
+        }
         if (sponsor === 'None') {
             response({
                 content: `${invite.url}`,
