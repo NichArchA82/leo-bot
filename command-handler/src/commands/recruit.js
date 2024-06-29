@@ -348,7 +348,7 @@ export default {
                 }, {
                     $set: {
                         _id: guild.id,
-                        procGreeting: channel
+                        procChannel: channel
                     }
                 }, {
                     upsert: true,
@@ -451,9 +451,10 @@ export default {
                         cooldown = new Date(currentDate);
                     }
 
+                    const cooldownTimestamp = Math.floor(cooldown.getTime() / 1000);
                     const genGreetMsg = document.genGreeting.replaceAll('<MEMBER>', user);
                     const inProcGreetMsg = document.procGreeting.replaceAll('<MEMBER>', user);
-                    const eMessage = document.eval.replaceAll('<MEMBER>', displayName).replaceAll('<SPONSOR>', sponsor).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`).replaceAll('<MIN_EVAL>', minEvalValue);
+                    const eMessage = document.eval.replaceAll('<MEMBER>', displayName).replaceAll('<SPONSOR>', sponsor).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`).replaceAll('<MIN_EVAL>', minEvalValue).replaceAll('<COOLDOWN>', `<t:${cooldownTimestamp}:F>`);
                     const genChannel = await guild.channels.fetch(document.genChannel);
                     const procChannel = await guild.channels.fetch(document.procChannel);
                     const evalChannel = await guild.channels.fetch(document.evalChannel);
