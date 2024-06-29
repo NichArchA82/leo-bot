@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, InteractionResponseType, PermissionFlagsBits } from 'discord.js';
+import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
 import commandTypes from '../cmd-handler/command-types.js';
 
 export default {
