@@ -61,7 +61,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
       for (const thread of document.threads) {      
         for (const user of thread.users) {
           if (user.userId === userId) {
-            if ((thread.threadName !== className && thread.threadName !== 'command-chat' && thread.threadName!== 'comms') || (thread.threadName === 'command-chat' && (role === 'Soldier' || role === 'Sniper')) || className === 'Bench' || className === 'Late' || className === 'Tentative') {
+            if ((thread.threadName !== className && thread.threadName !== 'command-chat' && thread.threadName!== 'COMMS') || (thread.threadName === 'command-chat' && (role === 'Soldier' || role === 'Sniper')) || className === 'Bench' || className === 'Late' || className === 'Tentative') {
               // Pull user from database
               await operationsSchema.findOneAndUpdate(
                 { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
@@ -114,7 +114,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
           }
           }
 
-          if (thread.threadName === 'comms') {
+          if (thread.threadName === 'COMMS') {
             if (userExists === false) {
               await operationsSchema.findOneAndUpdate(
                 { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
@@ -130,7 +130,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
             }
             }
 
-        if (!thread.users.length && thread.threadName !== 'command-chat' && thread.threadName !== 'comms') {
+        if (!thread.users.length && thread.threadName !== 'command-chat' && thread.threadName !== 'COMMS') {
           const threadChannel = await handler.client.channels.fetch(thread.threadId);
           await threadChannel.delete();
           await operationsSchema.findOneAndUpdate(

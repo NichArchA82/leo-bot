@@ -55,7 +55,7 @@ export default {
                 });
 
                 const commsThread = await interaction.channel.threads.create({
-                    name: `comms`,
+                    name: `COMMS`,
                     invitable: true, // Allows anyone in the thread to invite others
                     });
     
@@ -69,7 +69,7 @@ export default {
                     threads: {
                         $each: [
                             { threadId: commandThread.id, threadName: 'command-chat' },
-                            { threadId: commsThread.id, threadName: 'comms' }
+                            { threadId: commsThread.id, threadName: 'COMMS' }
                           ]
                     }
                 }
