@@ -48,11 +48,16 @@ export default {
             const operationsSchema = getOperationsSchema(handler);
 
             try {
-                const threadChannel = await interaction.channel.threads.create({
+                const commandThread = await interaction.channel.threads.create({
                 name: `command-chat`,
                 type: ChannelType.PrivateThread,
                 invitable: true, // Allows anyone in the thread to invite others
                 });
+
+                const commsThread = await interaction.channel.threads.create({
+                    name: `comms`,
+                    invitable: true, // Allows anyone in the thread to invite others
+                    });
     
             await operationsSchema.findOneAndUpdate({
                 _id: id,
@@ -62,8 +67,10 @@ export default {
                 eventId: eventId,
                 $push: {
                     threads: {
-                    threadId: threadChannel.id,
-                    threadName: 'command-chat',
+                        $each: [
+                            { threadId: commandThread.id, threadName: 'command-chat' },
+                            { threadId: commsThread.id, threadName: 'comms' }
+                          ]
                     }
                 }
             }, {
