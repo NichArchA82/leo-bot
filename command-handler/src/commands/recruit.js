@@ -617,7 +617,7 @@ export default {
     
                 response({
                     content: `${message}`,
-                    ephemeral: false,
+                    ephemeral: true,
                 });
             } else if (subCommand === 'general-greeting') {
                     const member = interaction.options.getUser('recruited-user');
@@ -636,7 +636,7 @@ export default {
         
                     response({
                         content: `${message}`,
-                        ephemeral: false,
+                        ephemeral: true,
                     });
             } else if (subCommand === 'eval-message') {
                     const user = interaction.options.getUser('recruited-user');
@@ -680,7 +680,7 @@ export default {
         
                     response({
                         content: `${message}`,
-                        ephemeral: false,
+                        ephemeral: true,
                     });
             } else if (subCommand === 'recruit-promotion') {
                 const member = interaction.options.getUser('promoted-user');
@@ -698,7 +698,7 @@ export default {
                 const message = document.promotion.replaceAll('<MEMBER>', member);
                 response({
                     content: `${message}`,
-                    ephemeral: false,
+                    ephemeral: true,
                 });
             }
         } else if (subCommand === 'help') {
