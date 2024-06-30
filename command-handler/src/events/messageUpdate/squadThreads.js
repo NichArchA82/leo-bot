@@ -2,12 +2,12 @@ import { ChannelType } from 'discord.js';
 import getOperationsSchema from '../../schemas/operations.schema.js';
 import axios from 'axios';
 
-const delay = (ms) => {
-  return new Promise(resolve => setTimeout(resolve, ms));
-};
+// const delay = (ms) => {
+//   return new Promise(resolve => setTimeout(resolve, ms));
+// };
 
 export default async (message, _, handler) => { //oldMessage, newMessage, commandHandler
-  await delay(10000); // Wait for 2 seconds
+  // await delay(10000); // Wait for 2 seconds
   const operationsSchema = getOperationsSchema(handler);
   let document = await operationsSchema.findOne({ channel: message.channel.id });
   if (!document) return;
@@ -61,7 +61,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
       for (const thread of document.threads) {      
         for (const user of thread.users) {
           if (user.userId === userId) {
-            if ((thread.threadName !== className && thread.threadName !== 'command-chat') || (thread.threadName === 'command-chat' && (role === 'Soldier' || role === 'Sniper')) || className === 'Bench' || className === 'Late' || className === 'Tentative') {
+            if ((thread.threadName !== className && thread.threadName !== 'command-chat' && thread.threadName!== 'comms') || (thread.threadName === 'command-chat' && (role === 'Soldier' || role === 'Sniper')) || className === 'Bench' || className === 'Late' || className === 'Tentative') {
               // Pull user from database
               await operationsSchema.findOneAndUpdate(
                 { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
@@ -114,7 +114,23 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
           }
           }
 
-        if (!thread.users.length && thread.threadName !== 'command-chat') {
+          if (thread.threadName === 'comms') {
+            if (userExists === false) {
+              await operationsSchema.findOneAndUpdate(
+                { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
+                {
+                  $push: {
+                    "threads.$.users": { userId }
+                  }
+                },
+                { upsert: true }
+              );
+              const threadChannel = await handler.client.channels.fetch(thread.threadId);
+              await threadChannel.members.add(userId);
+            }
+            }
+
+        if (!thread.users.length && thread.threadName !== 'command-chat' && thread.threadName !== 'comms') {
           const threadChannel = await handler.client.channels.fetch(thread.threadId);
           await threadChannel.delete();
           await operationsSchema.findOneAndUpdate(
