@@ -113,7 +113,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
           }
           }
 
-          if (thread.threadName === 'COMMS' && (className !== 'Absence' || className !== 'Tentative')) {
+          if (thread.threadName === 'COMMS' && (className !== 'Absence' && className !== 'Tentative')) {
             if (userExists === false) {
               await operationsSchema.findOneAndUpdate(
                 { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
