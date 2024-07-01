@@ -27,7 +27,6 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
   ]);
   
   if (result.length > 0) {
-      const userIds = result[0].userIds;
   
       for (const thread of document.threads) {
           for (const user of thread.users) {
@@ -61,7 +60,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
       for (const thread of document.threads) {      
         for (const user of thread.users) {
           if (user.userId === userId) {
-            if ((thread.threadName !== className && thread.threadName !== 'command-chat' && thread.threadName!== 'COMMS') || (thread.threadName === 'command-chat' && (role === 'Soldier' || role === 'Sniper')) || className === 'Bench' || className === 'Late' || className === 'Tentative') {
+            if ((thread.threadName !== className && thread.threadName !== 'command-chat' && thread.threadName!== 'COMMS') || (thread.threadName === 'command-chat' && (role === 'Soldier' || role === 'Sniper' || className === 'Bench' || className === 'Late' || className === 'Tentative' || className === 'Absence'))) {
               // Pull user from database
               await operationsSchema.findOneAndUpdate(
                 { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
@@ -98,7 +97,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
           }
         }
 
-        if (thread.threadName === 'command-chat' && (role !== 'Soldier' && role !== 'Sniper' && className !== 'Late' && className !== 'Bench' && className !== 'Tentative')) {
+        if (thread.threadName === 'command-chat' && (role !== 'Soldier' && role !== 'Sniper' && className !== 'Late' && className !== 'Bench' && className !== 'Tentative' && className !== 'Absence')) {
           if (userExists === false) {
             await operationsSchema.findOneAndUpdate(
               { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
@@ -114,7 +113,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
           }
           }
 
-          if (thread.threadName === 'COMMS') {
+          if (thread.threadName === 'COMMS' && (className !== 'Absence' || className !== 'Tentative')) {
             if (userExists === false) {
               await operationsSchema.findOneAndUpdate(
                 { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
