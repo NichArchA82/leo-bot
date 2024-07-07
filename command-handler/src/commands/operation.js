@@ -49,14 +49,16 @@ export default {
 
             try {
                 const commandThread = await interaction.channel.threads.create({
-                name: `command-chat`,
+                name: `Command`,
                 type: ChannelType.PrivateThread,
                 invitable: true, // Allows anyone in the thread to invite others
+                autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek, // Sets auto-archive duration to 1 week
                 });
 
                 const commsThread = await interaction.channel.threads.create({
                     name: `COMMS`,
                     invitable: true, // Allows anyone in the thread to invite others
+                    autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek, // Sets auto-archive duration to 1 week
                     });
     
             await operationsSchema.findOneAndUpdate({
@@ -68,7 +70,7 @@ export default {
                 $push: {
                     threads: {
                         $each: [
-                            { threadId: commandThread.id, threadName: 'command-chat' },
+                            { threadId: commandThread.id, threadName: 'Command' },
                             { threadId: commsThread.id, threadName: 'COMMS' }
                           ]
                     }
