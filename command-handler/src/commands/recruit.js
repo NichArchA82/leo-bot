@@ -488,9 +488,14 @@ export default {
                     let displayName;
                     let cooldown;
                     try {
-                        // Fetch the GuildMember object using the user's ID
-                        const guild = interaction.guild; // Assuming this is used in a command context where the guild is available
+                        //find roles in the discord server
+                        const recruitRole = guild.roles.cache.find(role => role.name === 'Recruit');
+                        const natoRole = guild.roles.cache.find(role => role.name === 'NATO');
                         const member = await guild.members.fetch(user.id);
+                        //add recruit role from the user
+                        await member.roles.add(recruitRole);
+                        //add NATO role to the user
+                        await member.roles.add(natoRole);
                         displayName = member.displayName; // This will be the nickname in the guild, or the username if no nickname is set
                     } catch (error) {
                         console.error('Error fetching member:', error);
@@ -570,7 +575,8 @@ export default {
                         ephemeral: true,
                     });
             } else if (subCommand === 'recruit-promotion') {
-                    const member = interaction.options.getUser('promoted-user');
+                    const user = interaction.options.getUser('promoted-user');
+                    const member = await guild.members.fetch(user.id); 
                     const recruitMessagesSchema = getRecruitMessagesSchema(handler);
                     const document = await recruitMessagesSchema.findOne({ _id: guild.id });
 
@@ -594,6 +600,18 @@ export default {
                         },
                         { upsert: true }
                     );
+
+                    try {
+                        //find roles in the discord server
+                        const recruitRole = guild.roles.cache.find(role => role.name === 'Recruit');
+                        const fullMemberRole = guild.roles.cache.find(role => role.name === 'Full Member');
+                        const soldierRole = guild.roles.cache.find(role => role.name === 'Soldier');
+                        //remove recruit role from the user
+                        await member.roles.remove(recruitRole);
+                        //add full member and soldier role to the user
+                        await member.roles.add(fullMemberRole);
+                        await member.roles.add(soldierRole);
+                    } catch (e) {console.error(e)}
                     response({
                         content: `${message}`,
                         ephemeral: false,
