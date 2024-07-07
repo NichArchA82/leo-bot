@@ -52,13 +52,13 @@ export default {
                 name: `Command`,
                 type: ChannelType.PrivateThread,
                 invitable: true, // Allows anyone in the thread to invite others
-                autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek, // Sets auto-archive duration to 1 week
+                autoArchiveDuration: 10080, // Sets auto-archive duration to 1 week
                 });
 
                 const commsThread = await interaction.channel.threads.create({
                     name: `COMMS`,
                     invitable: true, // Allows anyone in the thread to invite others
-                    autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek, // Sets auto-archive duration to 1 week
+                    autoArchiveDuration: 10080, // Sets auto-archive duration to 1 week
                     });
     
             await operationsSchema.findOneAndUpdate({
