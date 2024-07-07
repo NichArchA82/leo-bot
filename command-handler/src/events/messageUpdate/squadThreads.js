@@ -97,7 +97,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
           }
         }
 
-        if (thread.threadName === 'Command' && (role !== 'Soldier' && role !== 'Sniper' && role === 'Tank_Crewman' && className !== 'Late' && className !== 'Bench' && className !== 'Tentative' && className !== 'Absence')) {
+        if (thread.threadName === 'Command' && (role !== 'Soldier' && role !== 'Sniper' && role !== 'Tank_Crewman' && className !== 'Late' && className !== 'Bench' && className !== 'Tentative' && className !== 'Absence')) {
           if (userExists === false) {
             await operationsSchema.findOneAndUpdate(
               { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
