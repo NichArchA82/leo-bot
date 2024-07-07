@@ -150,7 +150,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
             name: `${className}`,
             type: ChannelType.PrivateThread,
             invitable: true, // Allows anyone in the thread to invite others
-            autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek, // Sets auto-archive duration to 1 week
+            autoArchiveDuration: 10080, // Sets auto-archive duration to 1 week
           });
 
           await operationsSchema.updateOne(
