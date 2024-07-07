@@ -60,7 +60,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
       for (const thread of document.threads) {      
         for (const user of thread.users) {
           if (user.userId === userId) {
-            if ((thread.threadName !== className && thread.threadName !== 'command-chat' && thread.threadName!== 'COMMS') || (thread.threadName === 'command-chat' && (role === 'Soldier' || role === 'Sniper' || className === 'Bench' || className === 'Late' || className === 'Tentative' || className === 'Absence'))) {
+            if ((thread.threadName !== className && thread.threadName !== 'Command' && thread.threadName!== 'COMMS') || (thread.threadName === 'Command' && (role === 'Soldier' || role === 'Sniper' || role === 'Tank_Crewman' || className === 'Bench' || className === 'Late' || className === 'Tentative' || className === 'Absence'))) {
               // Pull user from database
               await operationsSchema.findOneAndUpdate(
                 { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
@@ -97,7 +97,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
           }
         }
 
-        if (thread.threadName === 'command-chat' && (role !== 'Soldier' && role !== 'Sniper' && className !== 'Late' && className !== 'Bench' && className !== 'Tentative' && className !== 'Absence')) {
+        if (thread.threadName === 'Command' && (role !== 'Soldier' && role !== 'Sniper' && role === 'Tank_Crewman' && className !== 'Late' && className !== 'Bench' && className !== 'Tentative' && className !== 'Absence')) {
           if (userExists === false) {
             await operationsSchema.findOneAndUpdate(
               { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
@@ -129,7 +129,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
             }
             }
 
-        if (!thread.users.length && thread.threadName !== 'command-chat' && thread.threadName !== 'COMMS') {
+        if (!thread.users.length && thread.threadName !== 'Command' && thread.threadName !== 'COMMS') {
           const threadChannel = await handler.client.channels.fetch(thread.threadId);
           await threadChannel.delete();
           await operationsSchema.findOneAndUpdate(
@@ -150,6 +150,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
             name: `${className}`,
             type: ChannelType.PrivateThread,
             invitable: true, // Allows anyone in the thread to invite others
+            autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek, // Sets auto-archive duration to 1 week
           });
 
           await operationsSchema.updateOne(
