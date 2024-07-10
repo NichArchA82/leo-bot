@@ -57,7 +57,7 @@ export default {
             try {
                 const messageId = interaction.options.getString('message-id');
                 const targetMessage = await interaction.channel.messages.fetch(messageId);
-                if (targetMessage.author.id !== client.user.id) {
+                if (targetMessage.author.id !== handler.client.user.id) {
                   response({
                     content: `This message was not sent by Leo Bot`,
                     ephemeral: true,
@@ -81,7 +81,7 @@ export default {
             try {
                 const messageId = interaction.options.getString('message-id');
                 const targetMessage = await interaction.channel.messages.fetch(messageId);
-                if (targetMessage.author.id !== client.user.id) {
+                if (targetMessage.author.id !== handler.client.user.id) {
                     response({
                         content: `Error: Leo Bot can only edit it's own messages,`,
                         ephemeral: true
