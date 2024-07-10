@@ -15,6 +15,7 @@ const schema = new mongoose.Schema({
     procChannel: reqString, //the inprocessing channel
     evalChannel: reqString, //the eval channel
     roChannel: reqString,
+    evalStatus: reqString,
     evalMessages: [
         {
             messageId: {
