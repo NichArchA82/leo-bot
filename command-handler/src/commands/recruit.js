@@ -200,6 +200,25 @@ export default {
                     ]
                 },
                 {
+                    name: 'recruit-eval',
+                    description: 'Send recruit eval message',
+                    type: ApplicationCommandOptionType.Subcommand,
+                    options: [
+                        {
+                            name: 'recruited-user',
+                            description: 'The new recruit',
+                            type: ApplicationCommandOptionType.User,
+                            required: true,
+                        },
+                        {
+                            name: 'sponsor-user',
+                            description: 'The sponsor of the new recruit',
+                            type: ApplicationCommandOptionType.User,
+                            required: false,
+                        }
+                    ]
+                },
+                {
                     name: 'recruit-promotion',
                     description: 'Send promotion message',
                     type: ApplicationCommandOptionType.Subcommand,
@@ -574,6 +593,95 @@ export default {
                         content: `Recruit messages sent.`,
                         ephemeral: true,
                     });
+            } else if (subCommand === 'recruit-eval') {
+                const user = interaction.options.getUser('recruited-user');
+                const sponsor = interaction.options.getUser('sponsor-user') ?? 'None';
+                const minEvalValue = sponsor === 'None' ? 10 : 8;
+                const recruitMessagesSchema = getRecruitMessagesSchema(handler);
+                const document = await recruitMessagesSchema.findOne({ _id: guild.id });
+                let displayName;
+                let cooldown;
+                try {
+                    //find roles in the discord server
+                    const recruitRole = guild.roles.cache.find(role => role.name === 'Recruit');
+                    const natoRole = guild.roles.cache.find(role => role.name === 'NATO');
+                    const member = await guild.members.fetch(user.id);
+                    //add recruit role from the user
+                    await member.roles.add(recruitRole);
+                    //add NATO role to the user
+                    await member.roles.add(natoRole);
+                    displayName = member.displayName; // This will be the nickname in the guild, or the username if no nickname is set
+                } catch (error) {
+                    console.error('Error fetching member:', error);
+                }
+
+                if (!document || !document.eval?.length || !document.evalChannel?.length) {
+                    response({
+                        content: `error. Not all required fields found in the database. Please run /recruit setup first.`,
+                        ephemeral: true,
+                    });
+                    return;
+                }
+
+                const currentDate = new Date();
+                const minEvalDate = new Date(currentDate);
+                minEvalDate.setDate(currentDate.getDate() + 7);
+                const unixTimestamp = Math.floor(minEvalDate.getTime() / 1000);
+                if (sponsor !== 'None') {
+                    cooldown = new Date(currentDate);
+                    cooldown.setHours(currentDate.getHours() + 12);
+                    // cooldown.setMinutes(currentDate.getMinutes() + 1);
+                } else {
+                    cooldown = new Date(currentDate);
+                }
+
+                const cooldownTimestamp = Math.floor(cooldown.getTime() / 1000);
+                const eMessage = document.eval.replaceAll('<MEMBER>', displayName).replaceAll('<SPONSOR>', sponsor).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`).replaceAll('<MIN_EVAL>', minEvalValue).replaceAll('<COOLDOWN>', `<t:${cooldownTimestamp}:F>`);
+                const evalChannel = await guild.channels.fetch(document.evalChannel);
+
+                if (!evalChannel) {
+                    response({
+                        content: `error sending message. Incorrect channel id specified`,
+                        ephemeral: true,
+                    });
+                    return;
+                }
+
+                try {
+                    const evalMsg = await evalChannel.send({
+                        content: `${eMessage}`,
+                        allowedMentions: {
+                            roles: [],
+                            users: [],
+                        },
+                    })
+                    await recruitMessagesSchema.findOneAndUpdate(
+                        { _id: guild.id },
+                        {
+                            $push: {
+                                evalMessages: {
+                                    messageId: evalMsg.id,
+                                    sponsorId: typeof sponsor === 'object' ? sponsor.id : 'None',
+                                    recruitId: user.id,
+                                    minEvalDate: minEvalDate.setUTCHours(0, 0, 0, 0),
+                                    cooldown: cooldown
+                                }
+                            }
+                        },
+                        { upsert: true }
+                    );
+                } catch (err) {
+                    response({
+                        content: `error sending recruit eval message.`,
+                        ephemeral: true,
+                    });
+                    return;
+                }
+
+                response({
+                    content: `Recruit eval message sent.`,
+                    ephemeral: true,
+                });
             } else if (subCommand === 'recruit-promotion') {
                     const user = interaction.options.getUser('promoted-user');
                     const member = await guild.members.fetch(user.id); 
