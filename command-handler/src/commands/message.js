@@ -32,6 +32,12 @@ export default {
                     type: ApplicationCommandOptionType.String,
                     required: true,
                 },
+                {
+                    name: 'new-content',
+                    description: 'The new content of the message',
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                },
             ]
         },
         {
@@ -80,6 +86,7 @@ export default {
         } else if (subCommand === 'edit') {
             try {
                 const messageId = interaction.options.getString('message-id');
+                const newContent = interaction.options.getString('new-content');
                 const targetMessage = await interaction.channel.messages.fetch(messageId);
                 if (targetMessage.author.id !== handler.client.user.id) {
                     response({
