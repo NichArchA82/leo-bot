@@ -16,7 +16,7 @@ const schema = new mongoose.Schema({
     evalChannel: reqString, //the eval board channel
     evalMsgChannel: reqString, //the recruit eval message channel
     roChannel: reqString,
-    evalStatus: reqString,
+    evalStatus: reqString, //The eval status message id
     evalMessages: [
         {
             messageId: {
