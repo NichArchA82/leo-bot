@@ -52,7 +52,13 @@ export default {
                 },
                 {
                     name: 'eval-channel',
-                    description: 'The new eval channel',
+                    description: 'The new eval board channel',
+                    type: ApplicationCommandOptionType.Channel,
+                    required: true,
+                },
+                {
+                    name: 'eval-msg-channel',
+                    description: 'The new eval message channel',
                     type: ApplicationCommandOptionType.Channel,
                     required: true,
                 },
@@ -150,6 +156,19 @@ export default {
                 {
                     name: 'eval-channel',
                     description: 'Edit the channel that the eval is sent in',
+                    type: ApplicationCommandOptionType.Subcommand,
+                    options: [
+                        {
+                            name: 'channel',
+                            description: 'The new eval channel',
+                            type: ApplicationCommandOptionType.Channel,
+                            required: true,
+                        } 
+                    ]
+                },
+                {
+                    name: 'eval-msg-channel',
+                    description: 'Edit the channel that the eval status message is sent in',
                     type: ApplicationCommandOptionType.Subcommand,
                     options: [
                         {
@@ -327,6 +346,7 @@ export default {
             const genChannel = interaction.options.getChannel('general-channel');
             const procChannel = interaction.options.getChannel('inprocess-channel');
             const eChannel = interaction.options.getChannel('eval-channel');
+            const eMsgChannel = interaction.options.getChannel('eval-msg-channel');
             const roChannel = interaction.options.getChannel('recruit-office-channel');
             const recruitMessagesSchema = getRecruitMessagesSchema(handler);
 
@@ -342,6 +362,7 @@ export default {
                     genChannel: genChannel.id,
                     procChannel: procChannel.id,
                     evalChannel: eChannel.id,
+                    evalMsgChannel: eMsgChannel,
                     roChannel: roChannel
                 }
             }, {
@@ -476,6 +497,24 @@ export default {
 
                 response({
                     content: `recruit eval channel edited to: ${channel}`,
+                    ephemeral: true,
+                });
+            } else if (subCommand === 'eval-msg-channel') {
+                const channel = interaction.options.getChannel('channel')
+                const recruitMessagesSchema = getRecruitMessagesSchema(handler);
+                await recruitMessagesSchema.findOneAndUpdate({
+                    _id: guild.id,
+                }, {
+                    $set: {
+                        _id: guild.id,
+                        evalMsgChannel: channel
+                    }
+                }, {
+                    upsert: true,
+                })
+
+                response({
+                    content: `recruit eval message channel edited to: ${channel}`,
                     ephemeral: true,
                 });
             } else if (subCommand === 'recruit-office-channel') { 
