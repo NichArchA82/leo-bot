@@ -13,7 +13,8 @@ const schema = new mongoose.Schema({
     eval: reqString, //the message to send in the eval channel
     genChannel: reqString, //the general greeting channel
     procChannel: reqString, //the inprocessing channel
-    evalChannel: reqString, //the eval channel
+    evalChannel: reqString, //the eval board channel
+    evalMsgChannel: reqString, //the recruit eval message channel
     roChannel: reqString,
     evalMessages: [
         {
