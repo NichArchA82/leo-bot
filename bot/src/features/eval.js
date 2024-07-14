@@ -18,6 +18,8 @@ export default (client, handler) => {
 
             const channel = await client.channels.fetch(document.evalMsgChannel);
 
+            console.log('channel', channel)
+
             currentDate.setUTCHours(0, 0, 0, 0); // Set time to 00:00:00.000 UTC
 
             const filteredEvalMessages = document.evalMessages.filter(evalMessage => {
@@ -25,28 +27,24 @@ export default (client, handler) => {
             });
 
             for (const msg of filteredEvalMessages) {
-                try {
-                    const message = await channel.messages.fetch(msg.messageId);
-                    const reactions = message.reactions.cache;
-                    const member = await message.guild.members.fetch(msg.recruitId);
-                    const sponsor = msg.sponsorId;
-                    const signoffs = sponsor === 'None' ? 10 : 8;
-    
-                    const checks = reactions.get('✅')?.count || 0;
-                    const concerns = reactions.get('❌')?.count || 0;
-    
-                    // <NREC_NAME>
-                    // <@SPONSOR_IF_SPONSORED>
-                    // <DAYS_SINCE_MIN_EVAL_DATE_PASSED>
-                    // <SIGN_OFFS_ACHIEVED>/<SIGN_OFFS_REQUIRED>
-                    statusMsg += member.displayName + "\n";
-                    statusMsg += sponsor + "\n";
-                    statusMsg += currentDate - document.minEvalDate + "day(s)\n";
-                    statusMsg += checks + "/" + signoffs + "\n\n";
-                } catch (error) {
-                    console.error(`Error fetching message with ID ${msg.messageId}:`, error);
-                    continue; // Skip to the next message in case of error
-                }
+                const message = await channel.messages.fetch(msg.messageId);
+                console.log('message', message)
+                const reactions = message.reactions.cache;
+                const member = await message.guild.members.fetch(msg.recruitId);
+                const sponsor = msg.sponsorId;
+                const signoffs = sponsor === 'None' ? 10 : 8;
+
+                const checks = reactions.get('✅')?.count || 0;
+                const concerns = reactions.get('❌')?.count || 0;
+
+                // <NREC_NAME>
+                // <@SPONSOR_IF_SPONSORED>
+                // <DAYS_SINCE_MIN_EVAL_DATE_PASSED>
+                // <SIGN_OFFS_ACHIEVED>/<SIGN_OFFS_REQUIRED>
+                statusMsg += member.displayName + "\n";
+                statusMsg += sponsor + "\n";
+                statusMsg += currentDate - document.minEvalDate + "day(s)\n";
+                statusMsg += checks + "/" + signoffs + "\n\n";
             }
 
             // All other NRECs are within their minimum eval period
