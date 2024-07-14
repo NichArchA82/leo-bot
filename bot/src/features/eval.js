@@ -83,7 +83,7 @@ export default (client, handler) => {
 
             if (document.evalStatus?.length) {
                 const evalStatusMsg = await channel.messages.fetch(document.evalStatus);
-                await evalStatusMsg.edit(message);
+                await evalStatusMsg.edit(statusMsg);
             } else {
                 const evalStatusMsg = await channel.send({
                     content: `${statusMsg}`,
