@@ -18,6 +18,8 @@ export default (client, handler) => {
 
             const channel = await client.channels.fetch(document.evalMsgChannel);
 
+            console.log('channel', channel)
+
             currentDate.setUTCHours(0, 0, 0, 0); // Set time to 00:00:00.000 UTC
 
             const filteredEvalMessages = document.evalMessages.filter(evalMessage => {
@@ -26,6 +28,7 @@ export default (client, handler) => {
 
             for (const msg of filteredEvalMessages) {
                 const message = await channel.messages.fetch(msg.messageId);
+                console.log('message', message)
                 const reactions = message.reactions.cache;
                 const member = await message.guild.members.fetch(msg.recruitId);
                 const sponsor = msg.sponsorId;
