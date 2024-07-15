@@ -10,15 +10,14 @@ export default (client, handler) => {
             console.log('schedule firing')
             const recruitMessagesSchema = getRecruitMessagesSchema(handler);
             const currentDate = new Date();
-            const document = await recruitMessagesSchema.findOne({ _id: process.env.EVENT_GUILDS });
+            let document = await recruitMessagesSchema.findOne({ _id: process.env.EVENT_GUILDS });
             let statusMsg = "";
             let lastMessageId = null;
             let messagesToDelete = [];
             if (!document || !document.evalMsgChannel?.length) return;
 
-            const channel = await client.channels.fetch(document.evalMsgChannel);
-
-            console.log('channel', channel)
+            const evalBoardChannel = await client.channels.fetch(document.evalChannel);
+            const evalMsgChannel = await client.channels.fetch(document.evalMsgChannel);
 
             currentDate.setUTCHours(0, 0, 0, 0); // Set time to 00:00:00.000 UTC
 
@@ -27,12 +26,19 @@ export default (client, handler) => {
             });
 
             for (const msg of filteredEvalMessages) {
-                const message = await channel.messages.fetch(msg.messageId);
-                console.log('message', message)
+                const minEvalDate = new Date(msg.minEvalDate);
+                const message = await evalBoardChannel.messages.fetch(msg.messageId);
                 const reactions = message.reactions.cache;
                 const member = await message.guild.members.fetch(msg.recruitId);
                 const sponsor = msg.sponsorId;
                 const signoffs = sponsor === 'None' ? 10 : 8;
+                let sMember = '';
+
+                if (sponsor === 'None') {
+                    sMember = 'None';
+                } else {
+                    sMember = await message.guild.members.fetch(msg.sponsorId);
+                }
 
                 const checks = reactions.get('✅')?.count || 0;
                 const concerns = reactions.get('❌')?.count || 0;
@@ -41,14 +47,19 @@ export default (client, handler) => {
                 // <@SPONSOR_IF_SPONSORED>
                 // <DAYS_SINCE_MIN_EVAL_DATE_PASSED>
                 // <SIGN_OFFS_ACHIEVED>/<SIGN_OFFS_REQUIRED>
-                statusMsg += member.displayName + "\n";
-                statusMsg += sponsor + "\n";
-                statusMsg += currentDate - document.minEvalDate + "day(s)\n";
-                statusMsg += checks + "/" + signoffs + "\n\n";
+                statusMsg += `Recruit - ` + member.displayName + "\n";
+                statusMsg += `Sponsor - ` + sMember.displayName + "\n";
+                const unixTimeStamp = Math.floor(minEvalDate.getTime() / 1000);
+                statusMsg += `Min Eval Date ended <t:${unixTimeStamp}:R>\n`;
+                statusMsg += checks + "/" + signoffs + " signoffs achieved\n\n";
             }
 
             // All other NRECs are within their minimum eval period
-            statusMsg += "All other NRECs are within their minimum eval period"
+            if (statusMsg.length) {
+                statusMsg += "All other NRECs are within their minimum eval period";
+            } else {
+                statusMsg = "All NRECs are within their minimul eval period";
+            }
 
             while (true) {
                 // Fetch messages in batches of 100
@@ -57,7 +68,7 @@ export default (client, handler) => {
                     options.before = lastMessageId;
                 }
                 
-                const fetchedMessages = await channel.messages.fetch(options);
+                const fetchedMessages = await evalMsgChannel.messages.fetch(options);
 
                 if (fetchedMessages.size === 0) break;
 
@@ -85,16 +96,37 @@ export default (client, handler) => {
             }
 
             if (document.evalStatus?.length) {
-                const evalStatusMsg = await channel.messages.fetch(document.evalStatus);
+                try {
+                    await evalMsgChannel.messages.fetch(document.evalStatus);
+                } catch {
+                    await recruitMessagesSchema.findOneAndUpdate({
+                        _id: process.env.EVENT_GUILDS,
+                    }, {
+                        $set: {
+                            _id: process.env.EVENT_GUILDS,
+                            evalStatus: ""
+                        }
+                    }, {
+                        upsert: true,
+                    })
+                    document = await recruitMessagesSchema.findOne({ _id: process.env.EVENT_GUILDS });
+                }
+            }
+            
+            if (document.evalStatus?.length) {
+                const evalStatusMsg = await evalMsgChannel.messages.fetch(document.evalStatus);
                 await evalStatusMsg.edit(statusMsg);
             } else {
-                const evalStatusMsg = await channel.send({
+                const evalStatusMsg = await evalMsgChannel.send({
                     content: `${statusMsg}`,
                     allowedMentions: {
                         roles: [],
                         users: [],
                     },
                 });
+
+                //pin the message to the channel
+                await evalStatusMsg.pin();
 
                 await recruitMessagesSchema.findOneAndUpdate({
                     _id: process.env.EVENT_GUILDS,
