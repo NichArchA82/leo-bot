@@ -5,7 +5,7 @@ import 'dotenv/config';
 export default (client, handler) => {
     // 0 23 * * 1
     //scheduled every Monday at 11pm
-    cron.schedule('* * * * *', async () => {
+    cron.schedule('0 23 * * 1', async () => {
         try {
             console.log('schedule firing')
             const recruitMessagesSchema = getRecruitMessagesSchema(handler);
