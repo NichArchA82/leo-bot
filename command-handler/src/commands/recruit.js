@@ -545,6 +545,7 @@ export default {
                     const document = await recruitMessagesSchema.findOne({ _id: guild.id });
                     let displayName;
                     let cooldown;
+                    let minEvalDate;
                     try {
                         //find roles in the discord server
                         const recruitRole = guild.roles.cache.find(role => role.name === 'Recruit');
@@ -568,17 +569,20 @@ export default {
                     }
 
                     const currentDate = new Date();
-                    const minEvalDate = new Date(currentDate);
-                    minEvalDate.setDate(currentDate.getDate() + 7);
-                    const unixTimestamp = Math.floor(minEvalDate.getTime() / 1000);
+                    
                     if (sponsor !== 'None') {
                         cooldown = new Date(currentDate);
                         cooldown.setHours(currentDate.getHours() + 12);
+                        minEvalDate = new Date(currentDate);
+                        minEvalDate.setDate(currentDate.getDate() + 7);
                         // cooldown.setMinutes(currentDate.getMinutes() + 1);
                     } else {
                         cooldown = new Date(currentDate);
+                        minEvalDate = new Date(currentDate);
+                        minEvalDate.setDate(currentDate.getDate() + 14);
                     }
 
+                    const unixTimestamp = Math.floor(minEvalDate.getTime() / 1000);
                     const cooldownTimestamp = Math.floor(cooldown.getTime() / 1000);
                     const genGreetMsg = document.genGreeting.replaceAll('<MEMBER>', user);
                     const inProcGreetMsg = document.procGreeting.replaceAll('<MEMBER>', user);
@@ -640,6 +644,7 @@ export default {
                 const document = await recruitMessagesSchema.findOne({ _id: guild.id });
                 let displayName;
                 let cooldown;
+                let minEvalDate;
                 try {
                     //find roles in the discord server
                     const recruitRole = guild.roles.cache.find(role => role.name === 'Recruit');
@@ -663,17 +668,20 @@ export default {
                 }
 
                 const currentDate = new Date();
-                const minEvalDate = new Date(currentDate);
-                minEvalDate.setDate(currentDate.getDate() + 7);
-                const unixTimestamp = Math.floor(minEvalDate.getTime() / 1000);
+                
                 if (sponsor !== 'None') {
                     cooldown = new Date(currentDate);
                     cooldown.setHours(currentDate.getHours() + 12);
+                    minEvalDate = new Date(currentDate);
+                    minEvalDate.setDate(currentDate.getDate() + 7);
                     // cooldown.setMinutes(currentDate.getMinutes() + 1);
                 } else {
                     cooldown = new Date(currentDate);
+                    minEvalDate = new Date(currentDate);
+                    minEvalDate.setDate(currentDate.getDate() + 14);
                 }
 
+                const unixTimestamp = Math.floor(minEvalDate.getTime() / 1000);
                 const cooldownTimestamp = Math.floor(cooldown.getTime() / 1000);
                 const eMessage = document.eval.replaceAll('<MEMBER>', displayName).replaceAll('<SPONSOR>', sponsor).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`).replaceAll('<MIN_EVAL>', minEvalValue).replaceAll('<COOLDOWN>', `<t:${cooldownTimestamp}:F>`);
                 const evalChannel = await guild.channels.fetch(document.evalChannel);
@@ -809,6 +817,7 @@ export default {
                     const minEvalValue = sponsor === 'None' ? 10 : 8;
                     let displayName;
                     let cooldown;
+                    let minEvalDate;
                     try {
                             // Fetch the GuildMember object using the user's ID
                             const guild = interaction.guild; // Assuming this is used in a command context where the guild is available
@@ -829,16 +838,19 @@ export default {
                     }
 
                     const currentDate = new Date();
-                    const minEvalDate = new Date(currentDate);
-                    minEvalDate.setDate(currentDate.getDate() + 7);
-                    const unixTimestamp = Math.floor(minEvalDate.getTime() / 1000);
+                    
                     if (sponsor !== 'None') {
                         cooldown = new Date(currentDate);
                         cooldown.setHours(currentDate.getHours() + 12);
+                        minEvalDate = new Date(currentDate);
+                        minEvalDate.setDate(currentDate.getDate() + 7);
                     } else {
                         cooldown = new Date(currentDate);
+                        minEvalDate = new Date(currentDate);
+                        minEvalDate.setDate(currentDate.getDate() + 14);
                     }
 
+                    const unixTimestamp = Math.floor(minEvalDate.getTime() / 1000);
                     const cooldownTimestamp = Math.floor(cooldown.getTime() / 1000);
 
                     const message = document.eval.replaceAll('<MEMBER>', displayName).replaceAll('<SPONSOR>', sponsor).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`).replaceAll('<MIN_EVAL>', minEvalValue).replaceAll('<COOLDOWN>', `<t:${cooldownTimestamp}:F>`);
