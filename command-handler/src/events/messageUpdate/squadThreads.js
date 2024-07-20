@@ -17,6 +17,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
     const eventId = document.eventId;
     const guildId = message.guild.id;
     const logger = getLogger(guildId, eventId);
+    logger.info(`--------------|[TASK START ]|-----------------`);
     const response = await axios.get(`https://raid-helper.dev/api/v2/events/${eventId}`);
     const data = response.data;
     const signups = data.signUps;
@@ -187,6 +188,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
         }
       }
     }
+    logger.info(`--------------|[TASK END ]|-----------------`);
   } catch (error) {
     logger.error('Error fetching data:', error);
   }
