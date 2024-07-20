@@ -1,3 +1,4 @@
+import logger from '../../../../logging/logger.js';
 import { ChannelType } from 'discord.js';
 import getOperationsSchema from '../../schemas/operations.schema.js';
 import axios from 'axios';
@@ -31,6 +32,8 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
       for (const thread of document.threads) {
           for (const user of thread.users) {
               if (!signups.some(signup => signup.userId === user.userId)) {
+                const member = await message.guild.members.fetch(user.userId);
+                logger.info(`Removing user ${member.displayName} from thread ${thread.threadName} because they are no longer with that squad`);
                   // Pull user from database
                   await operationsSchema.findOneAndUpdate(
                       { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
@@ -51,6 +54,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
       const role = item.specName;
       const className = item.className;
       const userId = item.userId;
+      const member = await message.guild.members.fetch(userId);
       let threadExists = false;
       let userExists = false;
 
@@ -62,6 +66,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
           if (user.userId === userId) {
             if ((thread.threadName !== className && thread.threadName !== 'Command' && thread.threadName!== 'COMMS') || (thread.threadName === 'Command' && (role === 'Soldier' || role === 'Sniper' || role === 'Tank_Crewman' || className === 'Bench' || className === 'Late' || className === 'Tentative' || className === 'Absence'))) {
               // Pull user from database
+              logger.info(`Removing user ${member.displayName} from thread ${thread.threadName}`);
               await operationsSchema.findOneAndUpdate(
                 { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
                 {
@@ -83,6 +88,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
         if (thread.threadName === className) {
           threadExists = true;
           if (userExists === false) {
+            logger.info(`adding user ${member.displayName} to thread ${thread.threadName}`);
             await operationsSchema.findOneAndUpdate(
               { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
               {
@@ -99,6 +105,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
 
         if (thread.threadName === 'Command' && (role !== 'Soldier' && role !== 'Sniper' && role !== 'Tank_Crewman' && className !== 'Late' && className !== 'Bench' && className !== 'Tentative' && className !== 'Absence')) {
           if (userExists === false) {
+            logger.info(`adding user ${member.displayName} to thread ${thread.threadName}`);
             await operationsSchema.findOneAndUpdate(
               { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
               {
@@ -115,6 +122,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
 
           if (thread.threadName === 'COMMS' && (className !== 'Absence' && className !== 'Tentative')) {
             if (userExists === false) {
+              logger.info(`adding user ${member.displayName} to thread ${thread.threadName}`);
               await operationsSchema.findOneAndUpdate(
                 { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
                 {
@@ -130,6 +138,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
             }
 
         if (!thread.users.length && thread.threadName !== 'Command' && thread.threadName !== 'COMMS') {
+          logger.info(`Removing thread ${thread.threadName} because all users have left`);
           const threadChannel = await handler.client.channels.fetch(thread.threadId);
           await threadChannel.delete();
           await operationsSchema.findOneAndUpdate(
@@ -146,6 +155,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
 
       if (threadExists === false && className !== 'Commander' && className !== 'Bench' && className !== 'Late' && className !== 'Tentative' && className !== 'Absence') {
         try {
+          logger.info(`creating new thread ${className}`);
           const threadChannel = await message.channel.threads.create({
             name: `${className}`,
             type: ChannelType.PrivateThread,
@@ -175,6 +185,6 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
       }
     }
   } catch (error) {
-    console.error('Error fetching data:', error);
+    logger.error('Error fetching data:', error);
   }
 };

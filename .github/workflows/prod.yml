@@ -38,6 +38,7 @@ jobs:
             docker run --env-file /root/leo-bot/.env -d \
             -p 443:5000 \
             -v /root/leo-bot/certs:/app/certificates \
+            -v /root/leo-bot/logs:/app/logging/logs \
             --name leo-bot \
             --restart unless-stopped \
             ghcr.io/nicharcha82/leo-bot-latest:latest
