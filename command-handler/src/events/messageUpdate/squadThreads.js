@@ -1,4 +1,4 @@
-import logger from '../../../../logging/logger.js';
+import { getLogger } from '../../../../logging/logger.js';
 import { ChannelType } from 'discord.js';
 import getOperationsSchema from '../../schemas/operations.schema.js';
 import axios from 'axios';
@@ -15,6 +15,8 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
 
   try {
     const eventId = document.eventId;
+    const guildId = message.guild.id;
+    const logger = getLogger(guildId, eventId);
     const response = await axios.get(`https://raid-helper.dev/api/v2/events/${eventId}`);
     const data = response.data;
     const signups = data.signUps;
