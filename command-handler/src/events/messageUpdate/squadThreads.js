@@ -179,6 +179,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
 
           // Add users to the thread
           await threadChannel.members.add(userId);
+          logger.info(`added user ${member.displayName} to new thread ${className}`);
         } catch (error) {
           console.error('Error creating thread:', error);
         }
