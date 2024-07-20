@@ -14,16 +14,26 @@ if (!fs.existsSync(logDirectory)) {
   fs.mkdirSync(logDirectory, { recursive: true });
 }
 
-const logger = createLogger({
-  level: 'debug',
-  format: combine(
-    timestamp(),
-    logFormat
-  ),
-  transports: [
-    new transports.File({ filename: path.join(logDirectory, 'bot.log') }),
-    new transports.Console()
-  ]
-});
+// Cache for loggers
+const loggers = {};
 
-export default logger;
+export const getLogger = (guildId, eventId) => {
+  const loggerKey = `${guildId}-${eventId}`;
+
+  if (!loggers[loggerKey]) {
+    const logPath = path.join(logDirectory, `${loggerKey}.log`);
+    loggers[loggerKey] = createLogger({
+      level: 'debug',
+      format: combine(
+        timestamp(),
+        logFormat
+      ),
+      transports: [
+        new transports.File({ filename: logPath }),
+        new transports.Console()
+      ]
+    });
+  }
+
+  return loggers[loggerKey];
+};
