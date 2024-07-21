@@ -6,7 +6,7 @@ import { EmbedBuilder } from 'discord.js';
 export default (client, handler) => {
     // Scheduled every Monday at 11pm
     // 0 23 * * 1
-    cron.schedule('* * * * *', async () => {
+    cron.schedule('0 23 * * 1', async () => {
         try {
             console.log('Schedule firing');
             const recruitMessagesSchema = getRecruitMessagesSchema(handler);
