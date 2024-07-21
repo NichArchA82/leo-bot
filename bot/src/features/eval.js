@@ -1,13 +1,14 @@
 import getRecruitMessagesSchema from 'command-handler/src/schemas/recruit-messages-schema.js';
 import cron from 'node-cron';
 import 'dotenv/config';
+import { EmbedBuilder } from 'discord.js';
 
 export default (client, handler) => {
+    // Scheduled every Monday at 11pm
     // 0 23 * * 1
-    //scheduled every Monday at 11pm
     cron.schedule('0 23 * * 1', async () => {
         try {
-            console.log('schedule firing')
+            console.log('Schedule firing');
             const recruitMessagesSchema = getRecruitMessagesSchema(handler);
             const currentDate = new Date();
             let document = await recruitMessagesSchema.findOne({ _id: process.env.EVENT_GUILDS });
@@ -43,31 +44,27 @@ export default (client, handler) => {
                 const checks = reactions.get('✅')?.count || 0;
                 const concerns = reactions.get('❌')?.count || 0;
 
-                // <NREC_NAME>
-                // <@SPONSOR_IF_SPONSORED>
-                // <DAYS_SINCE_MIN_EVAL_DATE_PASSED>
-                // <SIGN_OFFS_ACHIEVED>/<SIGN_OFFS_REQUIRED>
-                statusMsg += `Recruit - ` + member.displayName + "\n";
-                statusMsg += `Sponsor - ` + sMember.displayName + "\n";
+                statusMsg += `Recruit - ${member.displayName}\n`;
+                statusMsg += `Sponsor - ${sMember && sMember.displayName ? sMember.displayName : 'None'}\n`;
                 const unixTimeStamp = Math.floor(minEvalDate.getTime() / 1000);
                 statusMsg += `Min Eval Date ended <t:${unixTimeStamp}:R>\n`;
-                statusMsg += checks + "/" + signoffs + " signoffs achieved\n\n";
+                statusMsg += `${checks}/${signoffs} signoffs achieved\n\n`;
             }
 
             // All other NRECs are within their minimum eval period
             if (statusMsg.length) {
                 statusMsg += "All other NRECs are within their minimum eval period";
             } else {
-                statusMsg = "All NRECs are within their minimul eval period";
+                statusMsg = "All NRECs are within their minimum eval period";
             }
 
+            // Fetch old messages to delete
             while (true) {
-                // Fetch messages in batches of 100
                 const options = { limit: 100 };
                 if (lastMessageId) {
                     options.before = lastMessageId;
                 }
-                
+
                 const fetchedMessages = await evalMsgChannel.messages.fetch(options);
 
                 if (fetchedMessages.size === 0) break;
@@ -79,10 +76,8 @@ export default (client, handler) => {
                     }
                 });
 
-                // Update lastMessageId to the ID of the last message in the fetched batch
                 lastMessageId = fetchedMessages.last().id;
 
-                // Stop if we fetched fewer than the limit, indicating no more messages
                 if (fetchedMessages.size < 100) break;
             }
 
@@ -95,50 +90,39 @@ export default (client, handler) => {
                 }
             }
 
-            if (document.evalStatus?.length) {
-                try {
-                    await evalMsgChannel.messages.fetch(document.evalStatus);
-                } catch {
-                    await recruitMessagesSchema.findOneAndUpdate({
-                        _id: process.env.EVENT_GUILDS,
-                    }, {
-                        $set: {
-                            _id: process.env.EVENT_GUILDS,
-                            evalStatus: ""
-                        }
-                    }, {
-                        upsert: true,
-                    })
-                    document = await recruitMessagesSchema.findOne({ _id: process.env.EVENT_GUILDS });
+            const createEmbeds = (content) => {
+                const chunks = [];
+                for (let i = 0; i < content.length; i += 4096) {
+                    chunks.push(content.slice(i, i + 4096));
+                }
+
+                return chunks.map(chunk => new EmbedBuilder().setDescription(chunk).setColor('#0099ff'));
+            }
+
+            const sendOrUpdateMessage = async (embeds) => {
+                if (document.evalStatus?.length) {
+                    const evalStatusMsg = await evalMsgChannel.messages.fetch(document.evalStatus);
+                    await evalStatusMsg.edit({ embeds }).catch(console.error);
+                } else {
+                    const evalStatusMsg = await evalMsgChannel.send({ embeds }).catch(console.error);
+                    await evalStatusMsg.pin();
+
+                    await recruitMessagesSchema.findOneAndUpdate(
+                        { _id: process.env.EVENT_GUILDS },
+                        { $set: { _id: process.env.EVENT_GUILDS, evalStatus: evalStatusMsg.id } },
+                        { upsert: true }
+                    );
                 }
             }
-            
-            if (document.evalStatus?.length) {
-                const evalStatusMsg = await evalMsgChannel.messages.fetch(document.evalStatus);
-                await evalStatusMsg.edit(statusMsg);
-            } else {
-                const evalStatusMsg = await evalMsgChannel.send({
-                    content: `${statusMsg}`,
-                    allowedMentions: {
-                        roles: [],
-                        users: [],
-                    },
-                });
 
-                //pin the message to the channel
-                await evalStatusMsg.pin();
+            const embeds = createEmbeds(statusMsg);
+            await sendOrUpdateMessage(embeds);
 
-                await recruitMessagesSchema.findOneAndUpdate({
-                    _id: process.env.EVENT_GUILDS,
-                }, {
-                    $set: {
-                        _id: process.env.EVENT_GUILDS,
-                        evalStatus: evalStatusMsg.id,
-                    }
-                }, {
-                    upsert: true,
-                })
-            }
+            const guild = await client.guilds.fetch(process.env.EVENT_GUILDS);
+            const role = guild.roles.cache.find(role => role.name === 'Recruiting Specialist');
+            await evalMsgChannel.send({
+                content: `${role}\n Eval Message has been updated`
+            });
 
         } catch (error) {
             console.error('Error in scheduled task:', error);
