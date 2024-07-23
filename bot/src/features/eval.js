@@ -53,9 +53,9 @@ export default (client, handler) => {
 
             // All other NRECs are within their minimum eval period
             if (statusMsg.length) {
-                statusMsg += "All other NRECs are within their minimum eval period";
+                statusMsg += "All other NRECs are within their minimum eval period :thumbsup:";
             } else {
-                statusMsg = "All NRECs are within their minimum eval period";
+                statusMsg = "All NRECs are within their minimum eval period :thumbsup:";
             }
 
             // Fetch old messages to delete
@@ -87,6 +87,24 @@ export default (client, handler) => {
                     await msg.delete();
                 } catch (error) {
                     console.error(`Could not delete message with ID: ${msg.id}`, error);
+                }
+            }
+
+            if (document.evalStatus?.length) {
+                try {
+                    await evalMsgChannel.messages.fetch(document.evalStatus);
+                } catch {
+                    await recruitMessagesSchema.findOneAndUpdate({
+                        _id: process.env.EVENT_GUILDS,
+                    }, {
+                        $set: {
+                            _id: process.env.EVENT_GUILDS,
+                            evalStatus: ""
+                        }
+                    }, {
+                        upsert: true,
+                    })
+                    document = await recruitMessagesSchema.findOne({ _id: process.env.EVENT_GUILDS });
                 }
             }
 
