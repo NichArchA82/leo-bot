@@ -3,7 +3,6 @@ import 'dotenv/config';
 
 export default async (client, handler) => {
     try {
-        console.log('schedule firing')
         const recruitMessagesSchema = getRecruitMessagesSchema(handler);
         const currentDate = new Date();
         const document = await recruitMessagesSchema.findOne({ _id: process.env.EVENT_GUILDS });

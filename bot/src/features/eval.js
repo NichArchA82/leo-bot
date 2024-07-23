@@ -1,11 +1,12 @@
 import cron from 'node-cron';
-import eval from '../tasks/eval.js';
+import evalTask from '../tasks/eval.js';
 
 export default (client, handler) => {
     // Scheduled every Monday at 11pm
     // 0 23 * * 1
-    cron.schedule('* * * * *', async () => {
-       eval(client, handler); 
+    cron.schedule('0 23 * * 1', async () => {
+        console.log('Schedule firing');
+        evalTask(client, handler);
     }, {
         scheduled: true,
         timezone: "America/Denver"
