@@ -20,7 +20,7 @@ export default {
         }
     ],
 
-    run: async ({ response, handler }) => {
+    run: async ({ response, handler, interaction }) => {
         const subCommand = interaction.options.getSubcommand(false);
 
         if (!handler.isDbConnected) {
