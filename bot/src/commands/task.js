@@ -1,5 +1,5 @@
 import CommandTypes from 'command-handler/src/cmd-handler/command-types.js';
-import { PermissionFlagsBits } from 'discord.js';
+import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
 import { recruit, evalTask } from '../tasks/index.js';
 
 export default {
