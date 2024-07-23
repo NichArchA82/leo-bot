@@ -67,7 +67,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
       for (const thread of document.threads) {      
         for (const user of thread.users) {
           if (user.userId === userId) {
-            if ((thread.threadName !== className && thread.threadName !== 'Command' && thread.threadName!== 'COMMS') || (thread.threadName === 'Command' && (role === 'Soldier' || role === 'Sniper' || role === 'Tank_Crewman' || className === 'Bench' || className === 'Late' || className === 'Tentative' || className === 'Absence'))) {
+            if ((thread.threadName !== className && thread.threadName !== 'Command' && thread.threadName!== 'COMMS') || (thread.threadName === 'COMMS' && className === 'Absence') || (thread.threadName === 'Command' && (role === 'Soldier' || role === 'Sniper' || role === 'Tank_Crewman' || className === 'Bench' || className === 'Late' || className === 'Tentative' || className === 'Absence'))) {
               // Pull user from database
               logger.info(`Removing user ${member.displayName} from thread ${thread.threadName}`);
               await operationsSchema.findOneAndUpdate(
