@@ -4,7 +4,6 @@ import { EmbedBuilder } from 'discord.js';
 
 export default async (client, handler) => {
     try {
-        console.log('Schedule firing');
         const recruitMessagesSchema = getRecruitMessagesSchema(handler);
         const currentDate = new Date();
         let document = await recruitMessagesSchema.findOne({ _id: process.env.EVENT_GUILDS });
