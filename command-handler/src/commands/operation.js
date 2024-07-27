@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { ApplicationCommandOptionType, PermissionFlagsBits, ChannelType } from 'discord.js';
 import commandTypes from '../cmd-handler/command-types.js';
 import getOperationsSchema from '../schemas/operations.schema.js';
@@ -47,6 +48,16 @@ export default {
             const id = `${guild.id}-${eventId}`;
             const operationsSchema = getOperationsSchema(handler);
 
+            try {
+                await axios.get(`https://raid-helper.dev/api/v2/events/${eventId}`);
+            } catch {
+                response({
+                    content: 'event-id invalid. Please try again.',
+                    ephemeral: true,
+                })
+                return;
+            }
+            
             try {
                 const commandThread = await interaction.channel.threads.create({
                 name: `Command`,
