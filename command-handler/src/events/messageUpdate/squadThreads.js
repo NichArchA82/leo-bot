@@ -12,11 +12,11 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
   const operationsSchema = getOperationsSchema(handler);
   let document = await operationsSchema.findOne({ channel: message.channel.id });
   if (!document) return;
+  const eventId = document.eventId;
+  const guildId = message.guild.id;
+  const logger = getLogger(guildId, eventId);
 
   try {
-    const eventId = document.eventId;
-    const guildId = message.guild.id;
-    const logger = getLogger(guildId, eventId);
     logger.info(`--------------|[TASK START ]|-----------------`);
     const response = await axios.get(`https://raid-helper.dev/api/v2/events/${eventId}`);
     const data = response.data;
@@ -188,8 +188,9 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
         }
       }
     }
-    logger.info(`--------------|[TASK END ]|-----------------`);
+    logger.info(`---------------|[TASK END ]|------------------`);
   } catch (error) {
-    logger.error('Error fetching data:', error);
+    logger.error('Error in squad threads:', error);
+    logger.info(`---------------|[TASK END ]|------------------`);
   }
 };
