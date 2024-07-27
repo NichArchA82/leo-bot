@@ -42,11 +42,11 @@ export default async (reaction, user, handler) => {
         
         if (!evalMsg) return;
 
-        if (currentDate < cooldown) {
+        if (currentDate < cooldown && reaction.emoji.name === '✅') {
             const cooldownTimestamp = Math.floor(cooldown.getTime() / 1000);
             await reaction.users.remove(user.id);
             await user.send({
-                content: `This NREC has only just joined NATO and is under a 12-hour cool down until <t:${cooldownTimestamp}:F> before we are accepting evaluations. From that point please ensure you have played in at least one match with them **__after__** they officially became an NREC before returning to provide your evaluation, thank you 🫡`
+                content: `This NREC has only just joined NATO and is under a 12-hour cool down until <t:${cooldownTimestamp}:F> before we are accepting signoffs. From that point please ensure you have played in at least one match with them **__after__** they officially become a NREC before returning to provide your signoff, thank you 🫡`
             });
             return;
         }
