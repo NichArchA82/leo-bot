@@ -218,7 +218,7 @@ export default {
                         },
                         {
                             name: 'cooldown',
-                            description: 'The sponsor of the new recruit',
+                            description: 'If the cooldown should be applied',
                             type: ApplicationCommandOptionType.Boolean,
                             required: false,
                         }
@@ -239,6 +239,12 @@ export default {
                             name: 'sponsor-user',
                             description: 'The sponsor of the new recruit',
                             type: ApplicationCommandOptionType.User,
+                            required: false,
+                        },
+                        {
+                            name: 'cooldown',
+                            description: 'If the cooldown should be applied',
+                            type: ApplicationCommandOptionType.Boolean,
                             required: false,
                         }
                     ]
@@ -304,6 +310,12 @@ export default {
                             name: 'sponsor-user',
                             description: 'The sponsor of the new recruit',
                             type: ApplicationCommandOptionType.User,
+                            required: false,
+                        },
+                        {
+                            name: 'cooldown',
+                            description: 'If the cooldown should be applied',
+                            type: ApplicationCommandOptionType.Boolean,
                             required: false,
                         }
                     ]
@@ -831,6 +843,7 @@ export default {
             } else if (subCommand === 'eval-message') {
                     const user = interaction.options.getUser('recruited-user');
                     const sponsor = interaction.options.getUser('sponsor-user') ?? 'None';
+                    const cooldownToggle = interaction.options.getBoolean('cooldown') ?? true;
                     const minEvalValue = sponsor === 'None' ? 10 : 8;
                     let displayName;
                     let cooldown;
@@ -856,13 +869,18 @@ export default {
 
                     const currentDate = new Date();
                     
-                    if (sponsor !== 'None') {
+                    //new cooldown toggle
+                    if (sponsor !== 'None' && cooldownToggle) {
                         cooldown = new Date(currentDate);
                         cooldown.setHours(currentDate.getHours() + 12);
+                    } else {
+                        cooldown = new Date(currentDate);
+                    }
+                    
+                    if (sponsor !== 'None') {
                         minEvalDate = new Date(currentDate);
                         minEvalDate.setDate(currentDate.getDate() + 7);
                     } else {
-                        cooldown = new Date(currentDate);
                         minEvalDate = new Date(currentDate);
                         minEvalDate.setDate(currentDate.getDate() + 14);
                     }
