@@ -215,6 +215,12 @@ export default {
                             description: 'The sponsor of the new recruit',
                             type: ApplicationCommandOptionType.User,
                             required: false,
+                        },
+                        {
+                            name: 'cooldown',
+                            description: 'The sponsor of the new recruit',
+                            type: ApplicationCommandOptionType.Boolean,
+                            required: false,
                         }
                     ]
                 },
@@ -540,6 +546,7 @@ export default {
             if (subCommand === 'recruit-welcome') {
                     const user = interaction.options.getUser('recruited-user');
                     const sponsor = interaction.options.getUser('sponsor-user') ?? 'None';
+                    const cooldownToggle = interaction.options.getBoolean('cooldown') ?? true;
                     const minEvalValue = sponsor === 'None' ? 10 : 8;
                     const recruitMessagesSchema = getRecruitMessagesSchema(handler);
                     const document = await recruitMessagesSchema.findOne({ _id: guild.id });
@@ -570,14 +577,19 @@ export default {
 
                     const currentDate = new Date();
                     
-                    if (sponsor !== 'None') {
+                    //new logic for cooldown to add a toggle option
+                    if (sponsor !== 'None' && cooldownToggle) {
+                        // cooldown.setMinutes(currentDate.getMinutes() + 1);
                         cooldown = new Date(currentDate);
                         cooldown.setHours(currentDate.getHours() + 12);
-                        minEvalDate = new Date(currentDate);
-                        minEvalDate.setDate(currentDate.getDate() + 7);
-                        // cooldown.setMinutes(currentDate.getMinutes() + 1);
                     } else {
                         cooldown = new Date(currentDate);
+                    }
+                    
+                    if (sponsor !== 'None') {
+                        minEvalDate = new Date(currentDate);
+                        minEvalDate.setDate(currentDate.getDate() + 7);
+                    } else {
                         minEvalDate = new Date(currentDate);
                         minEvalDate.setDate(currentDate.getDate() + 14);
                     }
@@ -639,6 +651,7 @@ export default {
             } else if (subCommand === 'recruit-eval') {
                 const user = interaction.options.getUser('recruited-user');
                 const sponsor = interaction.options.getUser('sponsor-user') ?? 'None';
+                const cooldownToggle = interaction.options.getBoolean('sponsor-user') ?? true;
                 const minEvalValue = sponsor === 'None' ? 10 : 8;
                 const recruitMessagesSchema = getRecruitMessagesSchema(handler);
                 const document = await recruitMessagesSchema.findOne({ _id: guild.id });
@@ -669,14 +682,18 @@ export default {
 
                 const currentDate = new Date();
                 
-                if (sponsor !== 'None') {
+                //new logic for cooldown toggle
+                if (sponsor !== 'None' && cooldownToggle) {
                     cooldown = new Date(currentDate);
                     cooldown.setHours(currentDate.getHours() + 12);
-                    minEvalDate = new Date(currentDate);
-                    minEvalDate.setDate(currentDate.getDate() + 7);
-                    // cooldown.setMinutes(currentDate.getMinutes() + 1);
                 } else {
                     cooldown = new Date(currentDate);
+                }
+                
+                if (sponsor !== 'None') {
+                    minEvalDate = new Date(currentDate);
+                    minEvalDate.setDate(currentDate.getDate() + 7);
+                } else {
                     minEvalDate = new Date(currentDate);
                     minEvalDate.setDate(currentDate.getDate() + 14);
                 }
