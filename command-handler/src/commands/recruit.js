@@ -663,7 +663,7 @@ export default {
             } else if (subCommand === 'recruit-eval') {
                 const user = interaction.options.getUser('recruited-user');
                 const sponsor = interaction.options.getUser('sponsor-user') ?? 'None';
-                const cooldownToggle = interaction.options.getBoolean('sponsor-user') ?? true;
+                const cooldownToggle = interaction.options.getBoolean('cooldown') ?? true;
                 const minEvalValue = sponsor === 'None' ? 10 : 8;
                 const recruitMessagesSchema = getRecruitMessagesSchema(handler);
                 const document = await recruitMessagesSchema.findOne({ _id: guild.id });
