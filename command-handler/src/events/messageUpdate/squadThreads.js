@@ -83,8 +83,8 @@ export default async (message, _, handler) => {
 
         // Add user to the appropriate thread
         if (thread.threadName === className || 
-            (thread.threadName === 'Command' && !['Soldier', 'Sniper', 'Tank_Crewman', 'Late', 'Bench', 'Tentative', 'Absence'].includes(className)) || 
-            (thread.threadName === 'COMMS' && className !== 'Absence')) {
+          (thread.threadName === 'Command' && !(['Soldier', 'Sniper', 'Tank_Crewman'].includes(role) || ['Bench', 'Late', 'Tentative', 'Absence'].includes(className))) || 
+          (thread.threadName === 'COMMS' && className !== 'Absence')) {
           threadExists = true;
           if (!userExists) {
             logger.info(`Adding user ${member.displayName} to thread ${thread.threadName}`);
