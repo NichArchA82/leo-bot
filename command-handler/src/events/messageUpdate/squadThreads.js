@@ -57,6 +57,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
       const role = item.specName;
       const className = item.className;
       const userId = item.userId;
+      if (userId.includes("-")) continue;
       const member = await message.guild.members.fetch(userId);
       let threadExists = false;
       let userExists = false;
@@ -123,7 +124,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
           }
           }
 
-          if (thread.threadName === 'COMMS' && (className !== 'Absence' && className !== 'Tentative')) {
+          if (thread.threadName === 'COMMS' && className !== 'Absence') {
             if (userExists === false) {
               logger.info(`adding user ${member.displayName} to thread ${thread.threadName}`);
               await operationsSchema.findOneAndUpdate(
