@@ -4,7 +4,7 @@ import getOperationsSchema from '../../schemas/operations.schema.js';
 import axios from 'axios';
 
 // Function to handle the message event
-export default async (message, _, handler) => {
+export default async (message, _, handler) => {//oldMessage, newMessage, commandHandler
   const operationsSchema = getOperationsSchema(handler);
   let document = await operationsSchema.findOne({ channel: message.channel.id });
   if (!document) return; // Exit if no document is found
@@ -59,26 +59,31 @@ export default async (message, _, handler) => {
       document = await operationsSchema.findOne({ channel: message.channel.id });
 
       let threadExists = false;
-      let userExists = existingUserIds.includes(userId);
+      let userExists = false
 
       for (const thread of document.threads) {
-        // Determine if the user should be removed based on class and role
-        const shouldRemoveUser = 
-          (thread.threadName !== className && thread.threadName !== 'Command' && thread.threadName !== 'COMMS') || 
-          (thread.threadName === 'COMMS' && className === 'Absence') || 
-          (thread.threadName === 'Command' && ['Soldier', 'Sniper', 'Tank_Crewman'].includes(role) || ['Bench', 'Late', 'Tentative', 'Absence'].includes(className));
+        for (const user of thread.users) {
+          if (user.userId === userId) {
+            // Determine if the user should be removed based on class and role
+            const shouldRemoveUser = 
+            (thread.threadName !== className && thread.threadName !== 'Command' && thread.threadName !== 'COMMS') || 
+            (thread.threadName === 'COMMS' && className === 'Absence') || 
+            (thread.threadName === 'Command' && ['Soldier', 'Sniper', 'Tank_Crewman'].includes(role) || ['Bench', 'Late', 'Tentative', 'Absence'].includes(className));
 
-        if (userExists && shouldRemoveUser) {
-          logger.info(`Removing user ${member.displayName} from thread ${thread.threadName}`);
-          
-          // Remove user from the thread in the database and on Discord
-          await operationsSchema.updateOne(
-            { _id: `${guildId}-${eventId}`, "threads.threadId": thread.threadId },
-            { $pull: { "threads.$.users": { userId } } }
-          );
-          const threadChannel = await handler.client.channels.fetch(thread.threadId);
-          await threadChannel.members.remove(userId);
-          userExists = false;
+          if (userExists && shouldRemoveUser) {
+            logger.info(`Removing user ${member.displayName} from thread ${thread.threadName}`);
+            
+            // Remove user from the thread in the database and on Discord
+            await operationsSchema.updateOne(
+              { _id: `${guildId}-${eventId}`, "threads.threadId": thread.threadId },
+              { $pull: { "threads.$.users": { userId } } }
+            );
+            const threadChannel = await handler.client.channels.fetch(thread.threadId);
+            await threadChannel.members.remove(userId);
+            userExists = false;
+          }
+        } else {
+          userExists = true;
         }
 
         // Add user to the appropriate thread
@@ -111,7 +116,8 @@ export default async (message, _, handler) => {
           );
         }
       }
-
+    }
+    
       // Create a new thread if it doesn't exist
       if (!threadExists && !['Commander', 'Bench', 'Late', 'Tentative', 'Absence'].includes(className)) {
         try {
@@ -119,8 +125,8 @@ export default async (message, _, handler) => {
           const threadChannel = await message.channel.threads.create({
             name: `${className}`,
             type: ChannelType.PrivateThread,
-            invitable: true,
-            autoArchiveDuration: 10080,
+            invitable: true, //Allows anyone in the thread to invite members
+            autoArchiveDuration: 10080, //sets auto-archive duration to 1 week
           });
 
           await operationsSchema.updateOne(
@@ -134,9 +140,8 @@ export default async (message, _, handler) => {
         } catch (error) {
           logger.error('Error creating thread:', error);
         }
-      }
     }
-
+  }
     logger.info(`---------------|[TASK END ]|------------------`);
   } catch (error) {
     logger.error('Error in squad threads:', error);
