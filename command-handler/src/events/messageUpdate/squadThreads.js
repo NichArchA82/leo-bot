@@ -122,7 +122,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
           }
           }
 
-          if (thread.threadName === 'COMMS' && className !== 'Absence') {
+          if (thread.threadName === 'COMMS' && className !== 'Absence' && className !== 'Tentative') {
             if (userExists === false) {
               logger.info(`adding user ${member.displayName} to thread ${thread.threadName}`);
               await operationsSchema.findOneAndUpdate(
