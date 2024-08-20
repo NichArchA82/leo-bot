@@ -112,8 +112,12 @@ export default {
                 return;
             }
             for (const thread of document.threads) {
-                const threadChannel = await handler.client.channels.fetch(thread.threadId);
-                await threadChannel.delete();
+                try {
+                    const threadChannel = await handler.client.channels.fetch(thread.threadId);
+                    await threadChannel.delete();
+                } catch {
+                    continue;
+                }
             }
             await operationsSchema.deleteOne({ channel: interaction.channel.id });
 

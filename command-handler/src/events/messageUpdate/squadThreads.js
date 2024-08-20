@@ -15,6 +15,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
   const eventId = document.eventId;
   const guildId = message.guild.id;
   const logger = getLogger(guildId, eventId);
+  let member;
 
   try {
     logger.info(`--------------|[TASK START ]|-----------------`);
@@ -56,7 +57,12 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
     for (const item of signups) {
       const { specName: role, className, userId } = item;
       if (userId.includes("-")) continue;
-      const member = await message.guild.members.fetch(userId);
+      try {
+      member = await message.guild.members.fetch(userId);
+      } catch {
+        logger.error('Error fetching member: continuing');
+        continue;
+      }
       let threadExists = false;
       let userExists = false;
 
