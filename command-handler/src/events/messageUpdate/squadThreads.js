@@ -72,7 +72,14 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
       for (const thread of document.threads) {      
         for (const user of thread.users) {
           if (user.userId === userId) {
-            if ((thread.threadName !== className && thread.threadName !== 'Command' && thread.threadName !== 'COMMS') || (thread.threadName === 'COMMS' && className === 'Absence') || (thread.threadName === 'Command' && ['Soldier', 'Sniper', 'Tank_Crewman'].includes(role) || ['Bench', 'Late', 'Tentative', 'Absence'].includes(className))) {
+            if ((thread.threadName !== className 
+              && thread.threadName !== 'Command' 
+              && thread.threadName !== 'COMMS') 
+              || (thread.threadName === 'COMMS' 
+              && className === 'Absence') 
+              || (thread.threadName === 'Command' 
+              && ['Soldier', 'Sniper', 'Tank_Crewman'].includes(role) 
+              || ['Bench', 'Absence'].includes(className))) {
               // Pull user from database
               logger.info(`Removing user ${member.displayName} from thread ${thread.threadName}`);
               await operationsSchema.findOneAndUpdate(
@@ -111,7 +118,9 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
           }
         }
 
-        if ((thread.threadName === 'Command' && !(['Soldier', 'Sniper', 'Tank_Crewman'].includes(role) || ['Bench', 'Late', 'Tentative', 'Absence'].includes(className)))) {
+        if ((thread.threadName === 'Command' 
+          && !(['Soldier', 'Sniper', 'Tank_Crewman'].includes(role) 
+          || ['Bench', 'Late', 'Tentative', 'Absence'].includes(className)))) {
           if (userExists === false) {
             logger.info(`adding user ${member.displayName} to thread ${thread.threadName}`);
             await operationsSchema.findOneAndUpdate(
@@ -128,7 +137,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
           }
           }
 
-          if (thread.threadName === 'COMMS' && className !== 'Absence' && className !== 'Tentative') {
+          if (thread.threadName === 'COMMS' && className !== 'Absence') {
             if (userExists === false) {
               logger.info(`adding user ${member.displayName} to thread ${thread.threadName}`);
               await operationsSchema.findOneAndUpdate(
