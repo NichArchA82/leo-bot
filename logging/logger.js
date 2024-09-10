@@ -2,11 +2,7 @@ import { createLogger, format, transports } from 'winston';
 import path from 'path';
 import fs from 'fs';
 
-const { combine, timestamp, printf } = format;
-
-const logFormat = printf(({ level, message, timestamp }) => {
-  return `${timestamp} [${level}]: ${message}`;
-});
+const { combine, timestamp, json } = format;
 
 // Define the absolute path to the logs directory
 const logDirectory = path.resolve('../logging/logs');
@@ -23,10 +19,9 @@ export const getLogger = (guildId, eventId) => {
   if (!loggers[loggerKey]) {
     const logPath = path.join(logDirectory, `${loggerKey}.log`);
     loggers[loggerKey] = createLogger({
-      level: 'debug',
       format: combine(
         timestamp(),
-        logFormat
+        json()
       ),
       transports: [
         new transports.File({ filename: logPath }),
