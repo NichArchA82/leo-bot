@@ -47,9 +47,10 @@ export default {
 
             const id = `${guild.id}-${eventId}`;
             const operationsSchema = getOperationsSchema(handler);
+            let res = null;
 
             try {
-                await axios.get(`https://raid-helper.dev/api/v2/events/${eventId}`);
+                res = await axios.get(`https://raid-helper.dev/api/v2/events/${eventId}`);
             } catch {
                 response({
                     content: 'event-id invalid. Please try again.',
@@ -71,29 +72,36 @@ export default {
                     invitable: true, // Allows anyone in the thread to invite others
                     autoArchiveDuration: 10080, // Sets auto-archive duration to 1 week
                     });
-    
-            await operationsSchema.findOneAndUpdate({
-                _id: id,
-            }, {
-                _id: id,
-                channel: interaction.channel.id,
-                eventId: eventId,
-                $push: {
-                    threads: {
-                        $each: [
-                            { threadId: commandThread.id, threadName: 'Command' },
-                            { threadId: commsThread.id, threadName: 'COMMS' }
-                          ]
-                    }
-                }
-            }, {
-                upsert: true,
-            })
 
-            response({
-                content: 'event setup',
-                ephemeral: true,
-            })
+                const role = await guild.roles.create({
+                    name: `${res.data.title}-Tentative`,   // Name of the role
+                    color: '#3498db',      // Color of the role
+                    permissions: [], // Role permissions
+                    });
+                
+                    await operationsSchema.findOneAndUpdate({
+                    _id: id,
+                }, {
+                    _id: id,
+                    channel: interaction.channel.id,
+                    eventId: eventId,
+                    role: role.id,
+                    $push: {
+                        threads: {
+                            $each: [
+                                { threadId: commandThread.id, threadName: 'Command' },
+                                { threadId: commsThread.id, threadName: 'COMMS' }
+                            ]
+                        }
+                    }
+                }, {
+                    upsert: true,
+                })
+
+                response({
+                    content: 'event setup',
+                    ephemeral: true,
+                })
             } catch (error){
                 console.error(error)
                 response({
@@ -119,6 +127,18 @@ export default {
                     continue;
                 }
             }
+
+            try {
+                //get the role from discord
+                const role = guild.roles.cache.get(document.role);
+                
+                if (role) {
+                  await role.delete();
+                }
+            } catch (error) {
+                console.error(error);
+            }
+
             await operationsSchema.deleteOne({ channel: interaction.channel.id });
 
             response({

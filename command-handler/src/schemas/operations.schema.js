@@ -9,6 +9,7 @@ const schema = new mongoose.Schema({
     _id: reqString, // guildId-eventId
     channel: reqString, //the channel the event is in
     eventId: reqString, //The id of the event
+    role: reqString, //the created role for tentative users
     threads: [
         {
             threadId: reqString, //id of the thread

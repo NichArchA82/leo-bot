@@ -36,7 +36,11 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
       for (const thread of document.threads) {
           for (const user of thread.users) {
               if (!signups.some(signup => signup.userId === user.userId)) {
-                const member = await message.guild.members.fetch(user.userId);
+                member = await message.guild.members.fetch(user.userId);
+                const discordRole = await message.guild.roles.cache.get(document.role);
+                if (member.roles.cache.has(discordRole.id)) {
+                  await member.roles.remove(discordRole);
+                }
                 logger.info(`Removing user ${member.displayName} from thread ${thread.threadName} because they are no longer with that squad`);
                   // Pull user from database
                   await operationsSchema.findOneAndUpdate(
@@ -58,9 +62,19 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
       const { specName: role, className, userId } = item;
       if (userId.includes("-")) continue;
       try {
-      member = await message.guild.members.fetch(userId);
+        member = await message.guild.members.fetch(userId);
+        const discordRole = await message.guild.roles.cache.get(document.role);
+        if (className === 'Tentative') {
+          if (!member.roles.cache.has(discordRole.id)) {
+            await member.roles.add(discordRole);
+          }
+        } else {
+          if (member.roles.cache.has(discordRole.id)) {
+            await member.roles.remove(discordRole);
+          }
+        }
       } catch {
-        logger.error('Error fetching member: continuing');
+        logger.error('Error fetching member or adding and removing roles: continuing');
         continue;
       }
       let threadExists = false;
@@ -72,14 +86,19 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
       for (const thread of document.threads) {      
         for (const user of thread.users) {
           if (user.userId === userId) {
-            if ((thread.threadName !== className 
+            logger.info(thread.threadName)
+            if (
+              (thread.threadName !== className 
               && thread.threadName !== 'Command' 
-              && thread.threadName !== 'COMMS') 
-              || (thread.threadName === 'COMMS' 
-              && className === 'Absence') 
-              || (thread.threadName === 'Command' 
-              && ['Soldier', 'Sniper', 'Tank_Crewman'].includes(role) 
-              || ['Bench', 'Absence'].includes(className))) {
+              && thread.threadName !== 'COMMS')
+              || 
+              (thread.threadName === 'COMMS' 
+              && className === 'Absence')
+              || 
+              (thread.threadName === 'Command' 
+              && (['Soldier', 'Sniper', 'Tank_Crewman'].includes(role)
+              || ['Bench', 'Absence', 'Tentative', 'Late'].includes(className)))
+             ) {
               // Pull user from database
               logger.info(`Removing user ${member.displayName} from thread ${thread.threadName}`);
               await operationsSchema.findOneAndUpdate(
@@ -204,7 +223,7 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
     }
     logger.info(`---------------|[TASK END ]|------------------`);
   } catch (error) {
-    logger.error('Error in squad threads:', error);
+    logger.error('Error in squad threads:', {error: error, stack: error.stack});
     logger.info(`---------------|[TASK END ]|------------------`);
   }
 };
