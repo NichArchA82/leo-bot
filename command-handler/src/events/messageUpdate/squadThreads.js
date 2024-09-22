@@ -86,7 +86,6 @@ export default async (message, _, handler) => { //oldMessage, newMessage, comman
       for (const thread of document.threads) {      
         for (const user of thread.users) {
           if (user.userId === userId) {
-            logger.info(thread.threadName)
             if (
               (thread.threadName !== className 
               && thread.threadName !== 'Command' 
