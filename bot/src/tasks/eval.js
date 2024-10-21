@@ -14,6 +14,7 @@ export default async (client, handler) => {
 
         const evalBoardChannel = await client.channels.fetch(document.evalChannel);
         const evalMsgChannel = await client.channels.fetch(document.evalMsgChannel);
+        const roChannel = await client.channels.fetch(document.roChannel);
 
         currentDate.setUTCHours(0, 0, 0, 0); // Set time to 00:00:00.000 UTC
 
@@ -25,7 +26,14 @@ export default async (client, handler) => {
             const minEvalDate = new Date(msg.minEvalDate);
             const message = await evalBoardChannel.messages.fetch(msg.messageId);
             const reactions = message.reactions.cache;
-            const member = await message.guild.members.fetch(msg.recruitId);
+            try {
+                const member = await message.guild.members.fetch(msg.recruitId);
+            } catch {
+                await roChannel.send({
+                    content: `Invalid Recruit found in message https://discord.com/channels/${message.guild.id}/${message.channelId}/${message.id}`
+                });
+                continue;  
+            }
             const sponsor = msg.sponsorId;
             const signoffs = sponsor === 'None' ? 10 : 8;
             let sMember = '';
@@ -33,7 +41,14 @@ export default async (client, handler) => {
             if (sponsor === 'None') {
                 sMember = 'None';
             } else {
-                sMember = await message.guild.members.fetch(msg.sponsorId);
+                try {
+                    sMember = await message.guild.members.fetch(msg.sponsorId);
+                } catch {
+                    await roChannel.send({
+                        content: `Invalid Sponsor found in message https://discord.com/channels/${message.guild.id}/${message.channelId}/${message.id}`
+                    });
+                    continue;
+                }
             }
 
             const checks = reactions.get('✅')?.count || 0;
