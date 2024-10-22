@@ -26,8 +26,9 @@ export default async (client, handler) => {
             const minEvalDate = new Date(msg.minEvalDate);
             const message = await evalBoardChannel.messages.fetch(msg.messageId);
             const reactions = message.reactions.cache;
+            let member;
             try {
-                const member = await message.guild.members.fetch(msg.recruitId);
+                member = await message.guild.members.fetch(msg.recruitId);
             } catch {
                 await roChannel.send({
                     content: `Invalid Recruit found in message https://discord.com/channels/${message.guild.id}/${message.channelId}/${message.id}`
@@ -36,7 +37,7 @@ export default async (client, handler) => {
             }
             const sponsor = msg.sponsorId;
             const signoffs = sponsor === 'None' ? 10 : 8;
-            let sMember = '';
+            let sMember;
 
             if (sponsor === 'None') {
                 sMember = 'None';
