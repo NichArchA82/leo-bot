@@ -796,11 +796,11 @@ export default {
                         await member.roles.add(fullMemberRole);
                         await member.roles.add(soldierRole);
                         await user.send({
-                            content: `Congratulations! As per the announcement message in https://discord.com/channels/1206492396980797480/1214195155910004736 , ` +
+                            content: `Congratulations! As per the announcement message in https://discord.com/channels/1206492396980797480/1214195155910004736` +`,` +
                             `you have been promoted to a full NATO member. This means that enough of our members signed ` +
                             `off on you being of NATO quality for you to make it through our recruit evaluation process. ` +
                             `This process exists to ensure that only those who really fit in with our culture get to stay. ` +
-                            `We're thrilled to have you.\n\n` +
+                            `We're thrilled to have you!\n\n` +
                             `**__This automated direct message is to inform you of one important note__**, now that you are a full member, ` +
                             `you too get to play a role in recruitment and the recruit evaluation process for NATO if you wish, ` +
                             `__but please avoid disclosing details of the evaluation process to existing and future NRECs__. ` +
