@@ -796,20 +796,21 @@ export default {
                         await member.roles.add(fullMemberRole);
                         await member.roles.add(soldierRole);
                         await user.send({
-                            content: `Congratulations! As per the announcement message in our -smokers-hut channel, `+
+                            content: `Congratulations! As per the announcement message in our :smoking:-smokers-hut channel, `+
                             `you have been promoted to a full NATO member. This means that enough of our members signed `+
                             `off on you being of NATO quality for you to make it through our recruit evaluation process. `+
                             `This process exists to ensure that only those who really fit in with our culture get to stay. `+
-                            `We're thrilled to have you.\n`+
-                            `This automated direct message is to inform you of one important note, now that you are a full member, `+
+                            `We're thrilled to have you.\n\n`+
+                            `**__This automated direct message is to inform you of one important note__**, now that you are a full member, `+
                             `you too get to play a role in recruitment and the recruit evaluation process for NATO if you wish, `+
-                            `but please avoid disclosing details of the evaluation process to existing and future NRECs. `+
+                            `__but please avoid disclosing details of the evaluation process to existing and future NRECs__. `+
                             `We do this so that NRECs display their authentic selves for us to evaluate and don't put on a `+
-                            `performance in order to get their sign offs.\n`+
+                            `performance in order to get their sign offs.\n\n`+
                             `Full details can be found in our recruitment channels, which you now have access to:\n`+
                             `- https://discord.com/channels/1206492396980797480/1216763315783602216\n`+
                             `- https://discord.com/channels/1206492396980797480/1239583143456018512\n`+
-                            `You can ask any questions you have about the recruitment process here.`
+                            `    - You can ask any questions you have about the recruitment process here.` +
+                            `/n/nWelcome to NATO :saluting_face:`
                         });
                     } catch (e) {console.error(e)}
                     response({
