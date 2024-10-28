@@ -810,7 +810,7 @@ export default {
                             `- https://discord.com/channels/1206492396980797480/1216763315783602216\n` +
                             `- https://discord.com/channels/1206492396980797480/1239583143456018512\n` +
                             `    - You can ask any questions you have about the recruitment process here.` +
-                            `/n/nWelcome to NATO :saluting_face:`
+                            `\n\nWelcome to NATO :saluting_face:`
                         });
                     } catch (e) {console.error(e)}
                     response({
