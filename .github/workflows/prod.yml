@@ -32,6 +32,7 @@ jobs:
           key: ${{ secrets.HOST_SSH_KEY }}
           host: ${{ secrets.HOST_IP }}
           username: ${{ secrets.HOST_USERNAME }}
+          port: ${{ secrets.HOST_PORT }}
           script: |
             docker pull ghcr.io/nicharcha82/leo-bot-latest:latest
             docker rm -f leo-bot
