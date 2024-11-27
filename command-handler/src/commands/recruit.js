@@ -569,11 +569,14 @@ export default {
                         //find roles in the discord server
                         const recruitRole = guild.roles.cache.find(role => role.name === 'Recruit');
                         const natoRole = guild.roles.cache.find(role => role.name === 'NATO');
+                        const newberryRole = guild.roles.cache.find(role => role.name === 'Newberry');
                         const member = await guild.members.fetch(user.id);
                         //add recruit role from the user
                         await member.roles.add(recruitRole);
                         //add NATO role to the user
                         await member.roles.add(natoRole);
+                        //remove the Newberry role from the user
+                        await member.roles.remove(newberryRole);
                         displayName = member.displayName; // This will be the nickname in the guild, or the username if no nickname is set
                     } catch (error) {
                         console.error('Error fetching member:', error);
@@ -613,9 +616,10 @@ export default {
                     const eMessage = document.eval.replaceAll('<MEMBER>', displayName).replaceAll('<SPONSOR>', sponsor).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`).replaceAll('<MIN_EVAL>', minEvalValue).replaceAll('<COOLDOWN>', `<t:${cooldownTimestamp}:F>`);
                     const genChannel = await guild.channels.fetch(document.genChannel);
                     const procChannel = await guild.channels.fetch(document.procChannel);
+                    const roChannel = await guild.channels.fetch(roChannel);
                     const evalChannel = await guild.channels.fetch(document.evalChannel);
 
-                    if (!genChannel || !procChannel || !evalChannel) {
+                    if (!genChannel || !procChannel || !evalChannel || !roChannel) {
                         response({
                             content: `error sending messages. Incorrect channel ids specified`,
                             ephemeral: true,
@@ -624,8 +628,12 @@ export default {
                     }
 
                     try {
-                        await genChannel.send(genGreetMsg)
-                        await procChannel.send(inProcGreetMsg)
+                        const member = await guild.members.fetch(user.id);
+                        await genChannel.send(genGreetMsg);
+                        await member.send(inProcGreetMsg);
+                        await roChannel.send({
+                            content: `${displayName} has been promoted to recruit and sent to the https://discord.com/channels/1206492396980797480/1214195155910004736`
+                        });
                         const evalMsg = await evalChannel.send({
                             content: `${eMessage}`,
                             allowedMentions: {
