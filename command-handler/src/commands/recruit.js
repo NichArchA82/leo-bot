@@ -616,7 +616,7 @@ export default {
                     const eMessage = document.eval.replaceAll('<MEMBER>', displayName).replaceAll('<SPONSOR>', sponsor).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`).replaceAll('<MIN_EVAL>', minEvalValue).replaceAll('<COOLDOWN>', `<t:${cooldownTimestamp}:F>`);
                     const genChannel = await guild.channels.fetch(document.genChannel);
                     const procChannel = await guild.channels.fetch(document.procChannel);
-                    const roChannel = await guild.channels.fetch(roChannel);
+                    const roChannel = await guild.channels.fetch(document.roChannel);
                     const evalChannel = await guild.channels.fetch(document.evalChannel);
 
                     if (!genChannel || !procChannel || !evalChannel || !roChannel) {
