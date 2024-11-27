@@ -25,20 +25,4 @@ jobs:
         with:
           push: true
           tags: ghcr.io/nicharcha82/leo-bot-beta:beta
-            
-      - name: SSH Remote Commands
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          key: ${{ secrets.HOST_SSH_KEY }}
-          host: ${{ secrets.HOST_IP }}
-          username: ${{ secrets.HOST_USERNAME }}
-          script: |
-            docker pull ghcr.io/nicharcha82/leo-bot-beta:beta
-            docker rm -f beta-bot
-            docker run --env-file /root/beta-bot/.env -d \
-            -p 5000:5000 \
-            -v /root/beta-bot/certs:/app/certificates \
-            -v /root/beta-bot/logs:/app/logging/logs \
-            --name beta-bot \
-            --restart unless-stopped \
-            ghcr.io/nicharcha82/leo-bot-beta:beta
+    
