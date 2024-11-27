@@ -616,10 +616,9 @@ export default {
                     const eMessage = document.eval.replaceAll('<MEMBER>', displayName).replaceAll('<SPONSOR>', sponsor).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`).replaceAll('<MIN_EVAL>', minEvalValue).replaceAll('<COOLDOWN>', `<t:${cooldownTimestamp}:F>`);
                     const genChannel = await guild.channels.fetch(document.genChannel);
                     const procChannel = await guild.channels.fetch(document.procChannel);
-                    const roChannel = await guild.channels.fetch(document.roChannel);
                     const evalChannel = await guild.channels.fetch(document.evalChannel);
 
-                    if (!genChannel || !procChannel || !evalChannel || !roChannel) {
+                    if (!genChannel || !procChannel || !evalChannel) {
                         response({
                             content: `error sending messages. Incorrect channel ids specified`,
                             ephemeral: true,
@@ -631,7 +630,7 @@ export default {
                         const member = await guild.members.fetch(user.id);
                         await genChannel.send(genGreetMsg);
                         await member.send(inProcGreetMsg);
-                        await roChannel.send({
+                        await procChannel.send({
                             content: `${displayName} has been promoted to recruit and sent to the https://discord.com/channels/1206492396980797480/1214195155910004736`
                         });
                         const evalMsg = await evalChannel.send({
