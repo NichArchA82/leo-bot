@@ -42,12 +42,12 @@ export default {
         },
         {
             name: 'help',
-            description: 'displays the help menu for commandroles',
+            description: 'displays the help menu for message command',
             type: ApplicationCommandOptionType.Subcommand
         }
     ],
 
-    run: async ({ handler, interaction, response, guild }) => {
+    run: async ({ handler, interaction, response }) => {
         const subCommand = interaction.options.getSubcommand(false);
 
         if (!handler.isDbConnected) {
