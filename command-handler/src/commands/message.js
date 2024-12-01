@@ -42,7 +42,7 @@ export default {
         },
         {
             name: 'help',
-            description: 'displays the help menu for commandroles',
+            description: 'displays the help menu for message command',
             type: ApplicationCommandOptionType.Subcommand
         }
     ],
