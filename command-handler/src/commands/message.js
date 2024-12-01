@@ -47,7 +47,7 @@ export default {
         }
     ],
 
-    run: async ({ handler, interaction, response, guild }) => {
+    run: async ({ handler, interaction, response }) => {
         const subCommand = interaction.options.getSubcommand(false);
 
         if (!handler.isDbConnected) {
