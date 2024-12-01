@@ -24,7 +24,21 @@ export default async (client, handler) => {
 
         for (const msg of filteredEvalMessages) {
             const minEvalDate = new Date(msg.minEvalDate);
-            const message = await evalBoardChannel.messages.fetch(msg.messageId);
+            let message;
+            try {
+                message = await evalBoardChannel.messages.fetch(msg.messageId);
+            } catch {
+                await recruitMessagesSchema.findOneAndUpdate({
+                    _id: process.env.EVENT_GUILDS
+                }, {
+                    $pull: {
+                        evalMessages: {
+                            messageId: msg.messageId
+                        }
+                    }
+                });
+                continue;
+           }
             const reactions = message.reactions.cache;
             let member;
             try {
