@@ -1,6 +1,6 @@
 import getRecruitMessagesSchema from '../../schemas/recruit-messages-schema.js';
 
-export default async (reaction, user, handler) => {
+export default async (reaction, user, _, handler) => {
     try {
         const message = await reaction.message.fetch();
         const currentDate = new Date();
@@ -11,11 +11,6 @@ export default async (reaction, user, handler) => {
         let cooldown;
         let promoDate;
         let createdDate;
-        if (!handler.isDbConnected) {  console.log('database object deleted') 
-            return;
-        } else {
-            console.log('db is connected')
-        }
         const recruitMessagesSchema = getRecruitMessagesSchema(handler);
         const document = await recruitMessagesSchema.findOne({ _id: message.guild.id });
         if (document?.roChannel) {
