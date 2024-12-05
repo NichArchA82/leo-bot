@@ -14,7 +14,7 @@ export default async (reaction, user, handler) => {
         if (!handler.isDbConnected) {  console.log('database object deleted') 
             return;
         } else {
-            console.log('db is connected')
+            console.log('db is connected');
         }
         const recruitMessagesSchema = getRecruitMessagesSchema(handler);
         const document = await recruitMessagesSchema.findOne({ _id: message.guild.id });
