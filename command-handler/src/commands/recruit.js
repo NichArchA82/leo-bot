@@ -656,7 +656,6 @@ export default {
                             { upsert: true }
                         );
                     } catch (err) {
-                        console.log(err)
                         response({
                             content: `error sending recruit messages.`,
                             ephemeral: true,
