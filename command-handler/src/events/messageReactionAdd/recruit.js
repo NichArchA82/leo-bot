@@ -12,6 +12,9 @@ export default async (reaction, user, handler) => {
         let promoDate;
         let createdDate;
         const recruitMessagesSchema = getRecruitMessagesSchema(handler);
+        if (!handler.isDbConnected) {  console.log('database object deleted') 
+            return;
+        }
         const document = await recruitMessagesSchema.findOne({ _id: message.guild.id });
         if (document?.roChannel) {
             roChannel = message.guild.channels.cache.get(document.roChannel);
