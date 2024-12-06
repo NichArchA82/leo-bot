@@ -1,6 +1,8 @@
 import getRecruitMessagesSchema from '../../schemas/recruit-messages-schema.js';
 
-export default async (reaction, user, _, handler) => {
+export default async ({ eventArgs, handler }) => {
+    const [reaction, user] = eventArgs;
+
     try {
         const message = await reaction.message.fetch();
         const currentDate = new Date();
@@ -25,6 +27,7 @@ export default async (reaction, user, _, handler) => {
 
         for (const msg of document.evalMessages) {
             if (message.id === msg.messageId) {
+                console.log(message.id)
                 member = await message.guild.members.fetch(msg.recruitId);
                 sponsor = msg.sponsorId;
                 evalMsg = true;

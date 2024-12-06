@@ -1,6 +1,8 @@
 import { InteractionType } from 'discord.js';
 
-export default async (interaction, handler) => {
+export default async ({ eventArgs, handler }) => {
+    const [interaction] = eventArgs;
+    
     if (interaction.type !== InteractionType.ApplicationCommandAutocomplete) return;
 
     const { commandHandler } = handler;

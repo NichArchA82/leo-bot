@@ -7,7 +7,8 @@ import axios from 'axios';
 //   return new Promise(resolve => setTimeout(resolve, ms));
 // };
 
-export default async (message, _, handler) => { //oldMessage, newMessage, commandHandler
+export default async ({ eventArgs, handler }) => {
+  const [message] = eventArgs;
   // await delay(10000); // Wait for 2 seconds
   const operationsSchema = getOperationsSchema(handler);
   let document = await operationsSchema.findOne({ channel: message.channel.id });
