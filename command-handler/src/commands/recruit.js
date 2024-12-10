@@ -343,6 +343,8 @@ export default {
     ],
 
     run: async ({ handler, interaction, response, guild }) => {
+        await interaction.deferReply({ ephemeral: true });
+
         if (!handler.isDbConnected) {  console.log('database object deleted')
             response({
                 content: 'db error: No Connection. Contact developers for help',

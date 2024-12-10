@@ -17,7 +17,9 @@ export default {
         }
     ],
 
-    run: async ({ handler, response, text, guild }) => {
+    run: async ({ handler, response, text, guild, interaction }) => {
+        await interaction.deferReply({ ephemeral: true });
+        
         if (!handler.isDbConnected) {
             response({
                 content: 'db error: No Connection. Contact developers for help',

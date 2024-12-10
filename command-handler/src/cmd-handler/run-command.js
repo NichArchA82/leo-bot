@@ -31,15 +31,12 @@ export default async ({
     const response = (obj) => {
         if (reply === true || obj.ephemeral === true) {
             if (message) message.reply(obj);
-            else if (interaction) interaction.reply(obj);
+            else if (interaction) interaction.editReply(obj);
         } else {
             if (message) message.channel.send(obj);
             else if (interaction) {
                 interaction.channel.send(obj);
-                // interaction.reply({ content: 'Message sent', ephemeral: true }).then(() => {
-                //     setTimeout(() => interaction.deleteReply(), 2000); // Deletes the ephemeral message after 1 second
-                // });
-                interaction.reply({ content: 'Message sent', ephemeral: true }).then(() => {
+                interaction.editReply({ content: 'Message sent', ephemeral: true }).then(() => {
                     interaction.deleteReply();
                 });
             }
