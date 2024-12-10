@@ -14,7 +14,7 @@ export default {
     permissions: [PermissionFlagsBits.Administrator],
 
     run: async ({ response, interaction }) => {
-        await interaction.deferReply({ ephemeral: true });
+        if (interaction) await interaction.deferReply({ ephemeral: true });
 
         response({
             content: `Command Ran Successfully!`

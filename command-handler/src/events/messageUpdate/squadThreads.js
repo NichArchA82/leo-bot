@@ -3,12 +3,8 @@ import { ChannelType } from 'discord.js';
 import getOperationsSchema from '../../schemas/operations.schema.js';
 import axios from 'axios';
 
-// const delay = (ms) => {
-//   return new Promise(resolve => setTimeout(resolve, ms));
-// };
-
-export default async (message, _, handler) => { //oldMessage, newMessage, commandHandler
-  // await delay(10000); // Wait for 2 seconds
+export default async ({eventArgs, handler}) => {
+  const [message] = eventArgs;
   const operationsSchema = getOperationsSchema(handler);
   let document = await operationsSchema.findOne({ channel: message.channel.id });
   if (!document) return;
