@@ -21,6 +21,8 @@ export default {
     ],
 
     run: async ({ response, handler, interaction }) => {
+        await interaction.deferReply({ ephemeral: true });
+        
         const subCommand = interaction.options.getSubcommand(false);
 
         if (!handler.isDbConnected) {

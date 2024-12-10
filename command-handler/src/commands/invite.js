@@ -17,6 +17,8 @@ export default {
     ],
 
     run: async ({ interaction, response, args, guild }) => {
+        await interaction.deferReply({ ephemeral: true });
+        
         const [sponsor] = (args && args.length > 0) ? args : ['None'];
         const maxAge = 7 * 24 * 60 * 60; // 1 week
         let invite;

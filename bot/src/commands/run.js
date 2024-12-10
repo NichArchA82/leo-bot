@@ -13,7 +13,8 @@ export default {
     reply: false,
     permissions: [PermissionFlagsBits.Administrator],
 
-    run: ({ response }) => {
+    run: async ({ response, interaction }) => {
+        await interaction.deferReply({ ephemeral: true });
 
         response({
             content: `Command Ran Successfully!`

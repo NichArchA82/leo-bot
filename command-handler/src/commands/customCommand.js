@@ -82,6 +82,8 @@ export default {
     },
 
     run: async ({ handler, interaction, response, args, guild, member }) => {
+        await interaction.deferReply({ ephemeral: true });
+        
         const subCommand = interaction.options.getSubcommand(false);
 
         if (!handler.isDbConnected) {
