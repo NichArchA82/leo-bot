@@ -564,7 +564,8 @@ export default {
                     const minEvalValue = sponsor === 'None' ? 10 : 8;
                     const recruitMessagesSchema = getRecruitMessagesSchema(handler);
                     const document = await recruitMessagesSchema.findOne({ _id: guild.id });
-                    let displayName;
+                    let recruitDisplayName;
+                    let sponsDisplayName;
                     let cooldown;
                     let minEvalDate;
                     try {
@@ -573,13 +574,19 @@ export default {
                         const natoRole = guild.roles.cache.find(role => role.name === 'NATO');
                         const newberryRole = guild.roles.cache.find(role => role.name === 'Newberry');
                         const member = await guild.members.fetch(user.id);
+                        if (sponsor !== 'None') {
+                            const sponsUser = await guild.members.fetch(sponsor.id);
+                            sponsDisplayName = sponsUser.displayName;
+                        } else {
+                            sponsDisplayName = "None";
+                        }
                         //add recruit role from the user
                         await member.roles.add(recruitRole);
                         //add NATO role to the user
                         await member.roles.add(natoRole);
                         //remove the Newberry role from the user
                         await member.roles.remove(newberryRole);
-                        displayName = member.displayName; // This will be the nickname in the guild, or the username if no nickname is set
+                        recruitDisplayName = member.displayName; // This will be the nickname in the guild, or the username if no nickname is set
                     } catch (error) {
                         console.error('Error fetching member:', error);
                     }
@@ -615,7 +622,7 @@ export default {
                     const cooldownTimestamp = Math.floor(cooldown.getTime() / 1000);
                     const genGreetMsg = document.genGreeting.replaceAll('<MEMBER>', user);
                     const inProcGreetMsg = document.procGreeting.replaceAll('<MEMBER>', user);
-                    const eMessage = document.eval.replaceAll('<MEMBER>', displayName).replaceAll('<SPONSOR>', sponsor).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`).replaceAll('<MIN_EVAL>', minEvalValue).replaceAll('<COOLDOWN>', `<t:${cooldownTimestamp}:F>`);
+                    const eMessage = document.eval.replaceAll('<MEMBER>', recruitDisplayName).replaceAll('<SPONSOR>', sponsDisplayName).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`).replaceAll('<MIN_EVAL>', minEvalValue).replaceAll('<COOLDOWN>', `<t:${cooldownTimestamp}:F>`);
                     const genChannel = await guild.channels.fetch(document.genChannel);
                     const procChannel = await guild.channels.fetch(document.procChannel);
                     const evalChannel = await guild.channels.fetch(document.evalChannel);
@@ -633,7 +640,7 @@ export default {
                         await genChannel.send(genGreetMsg);
                         await member.send(inProcGreetMsg);
                         await procChannel.send({
-                            content: `${displayName} has been promoted to recruit and sent to the https://discord.com/channels/1206492396980797480/1214195155910004736`
+                            content: `${recruitDisplayName} has been promoted to recruit and sent to the https://discord.com/channels/1206492396980797480/1214195155910004736`
                         });
                         const evalMsg = await evalChannel.send({
                             content: `${eMessage}`,
