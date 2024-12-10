@@ -27,7 +27,6 @@ export default async ({ eventArgs, handler }) => {
 
         for (const msg of document.evalMessages) {
             if (message.id === msg.messageId) {
-                console.log(message.id)
                 member = await message.guild.members.fetch(msg.recruitId);
                 sponsor = msg.sponsorId;
                 evalMsg = true;
