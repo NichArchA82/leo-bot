@@ -564,6 +564,7 @@ export default {
                     const minEvalValue = sponsor === 'None' ? 10 : 8;
                     const recruitMessagesSchema = getRecruitMessagesSchema(handler);
                     const document = await recruitMessagesSchema.findOne({ _id: guild.id });
+                    let recruitMember;
                     let recruitDisplayName;
                     let sponsDisplayName;
                     let cooldown;
@@ -573,7 +574,7 @@ export default {
                         const recruitRole = guild.roles.cache.find(role => role.name === 'Recruit');
                         const natoRole = guild.roles.cache.find(role => role.name === 'NATO');
                         const newberryRole = guild.roles.cache.find(role => role.name === 'Newberry');
-                        const member = await guild.members.fetch(user.id);
+                        recruitMember = await guild.members.fetch(user.id);
                         if (sponsor !== 'None') {
                             const sponsUser = await guild.members.fetch(sponsor.id);
                             sponsDisplayName = sponsUser.displayName;
@@ -581,11 +582,11 @@ export default {
                             sponsDisplayName = "None";
                         }
                         //add recruit role from the user
-                        await member.roles.add(recruitRole);
+                        await recruitMember.roles.add(recruitRole);
                         //add NATO role to the user
-                        await member.roles.add(natoRole);
+                        await recruitMember.roles.add(natoRole);
                         //remove the Newberry role from the user
-                        await member.roles.remove(newberryRole);
+                        await recruitMember.roles.remove(newberryRole);
                         recruitDisplayName = member.displayName; // This will be the nickname in the guild, or the username if no nickname is set
                     } catch (error) {
                         console.error('Error fetching member:', error);
@@ -637,11 +638,10 @@ export default {
                     }
 
                     try {
-                        const member = await guild.members.fetch(user.id);
-                        await member.send(inProcGreetMsg);
+                        await recruitMember.send(inProcGreetMsg);
                     } catch {
                         await roChannel.send({
-                            content: `Leo Bot attempted to send Recruit ${member.displayName} the Recruit Welcome message, but their DMs are closed`
+                            content: `Leo Bot attempted to send Recruit ${recruitMember.displayName} the Recruit Welcome message, but their DMs are closed`
                         });
                     }
                     
