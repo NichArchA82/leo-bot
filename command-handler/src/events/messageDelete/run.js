@@ -1,7 +1,6 @@
 import getRecruitMessagesSchema from '../../schemas/recruit-messages-schema.js';
 
-export default async ({eventArgs, handler}) => {
-    const [message] = eventArgs;
+export default async (message, handler) => {
     try {
         const recruitMessagesSchema = getRecruitMessagesSchema(handler);
         const document = await recruitMessagesSchema.findOne({ _id: message.guild.id });
