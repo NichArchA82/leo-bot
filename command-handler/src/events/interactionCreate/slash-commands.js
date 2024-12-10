@@ -1,7 +1,9 @@
 import { InteractionType } from 'discord.js';
 import runCommand from '../../cmd-handler/run-command.js';
 
-export default (interaction, handler) => {
+export default ({ eventArgs, handler }) => {
+    const [interaction] = eventArgs;
+
     if (interaction.type !== InteractionType.ApplicationCommand) return;
 
     const { commandName, guild, member, user, options } = interaction;
