@@ -626,6 +626,7 @@ export default {
                     const genChannel = await guild.channels.fetch(document.genChannel);
                     const procChannel = await guild.channels.fetch(document.procChannel);
                     const evalChannel = await guild.channels.fetch(document.evalChannel);
+                    const roChannel = await guild.channels.fetch(document.roChannel);
 
                     if (!genChannel || !procChannel || !evalChannel) {
                         response({
@@ -637,8 +638,15 @@ export default {
 
                     try {
                         const member = await guild.members.fetch(user.id);
-                        await genChannel.send(genGreetMsg);
                         await member.send(inProcGreetMsg);
+                    } catch {
+                        await roChannel.send({
+                            content: `Leo Bot attempted to send Recruit ${member.displayName} the Recruit Welcome message, but their DMs are closed`
+                        });
+                    }
+                    
+                    try { 
+                        await genChannel.send(genGreetMsg);
                         await procChannel.send({
                             content: `${recruitDisplayName} has been promoted to recruit and sent to the https://discord.com/channels/1206492396980797480/1214195155910004736`
                         });
