@@ -587,7 +587,7 @@ export default {
                         await recruitMember.roles.add(natoRole);
                         //remove the Newberry role from the user
                         await recruitMember.roles.remove(newberryRole);
-                        recruitDisplayName = member.displayName; // This will be the nickname in the guild, or the username if no nickname is set
+                        recruitDisplayName = recruitMember.displayName; // This will be the nickname in the guild, or the username if no nickname is set
                     } catch (error) {
                         console.error('Error fetching member:', error);
                     }
@@ -641,7 +641,7 @@ export default {
                         await recruitMember.send(inProcGreetMsg);
                     } catch {
                         await roChannel.send({
-                            content: `Leo Bot attempted to send Recruit ${recruitMember.displayName} the Recruit Welcome message, but their DMs are closed`
+                            content: `Leo Bot attempted to send Recruit \`${recruitMember.displayName}\` the recruit welcome message, but their DMs are closed`
                         });
                     }
                     
