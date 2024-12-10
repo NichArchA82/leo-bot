@@ -1,3 +1,3 @@
-export default ({eventArgs, handler}) => {
+export default (message) => {
     return;
 }

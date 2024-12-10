@@ -1,7 +1,6 @@
 import getRecruitMessagesSchema from '../../schemas/recruit-messages-schema.js';
 
-export default async ({eventArgs, handler}) => {
-    const [reaction, user] = eventArgs;
+export default async (reaction, user, _, handler) => {
     try {
         const message = await reaction.message.fetch();
         const currentDate = new Date();

@@ -47,12 +47,8 @@ export default class EventHandler {
         for (const [event, functions] of this._eventListeners) {
             client.on(event, (...args) => {
                 for (const func of functions) {
-                    const context = {
-                        eventArgs: args,
-                        handler
-                    };
                     try {
-                        func(context);
+                        func(...args, handler);
                     } catch (e) {
                         console.error(e);
                     }

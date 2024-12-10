@@ -1,7 +1,6 @@
 import runCommand from "../../cmd-handler/run-command.js";
 
-export default ({eventArgs, handler}) => {
-    const [message] = eventArgs;
+export default (message, handler) => {
     const { commandHandler } = handler;
     const { content, author, guild, member } = message;
     const prefix = commandHandler.getPrefix(guild?.id);
