@@ -54,7 +54,7 @@ export default async ({ eventArgs, handler }) => {
                 });
             } catch {
                 await roChannel.send({
-                    content: `Leo Bot attempted to alert \`${user.displayName}\` that recruit https://discord.com/channels/${message.guild.id}/${message.channelId}/${message.id} has only just joined NATO and is under cooldown, but their DMs are closed`
+                    content: `Leo Bot attempted to alert \`${member.displayName}\` that recruit https://discord.com/channels/${message.guild.id}/${message.channelId}/${message.id} has only just joined NATO and is under cooldown, but their DMs are closed`
                 });
             } finally {
                 return;
@@ -71,7 +71,7 @@ export default async ({ eventArgs, handler }) => {
                 });
             } catch {
                 await roChannel.send({
-                    content: `Leo Bot attempted to alert \`${user.displayName}\` that sponsors cannot sign off on their own recruit, but their DMs are closed`
+                    content: `Leo Bot attempted to alert \`${member.displayName}\` that sponsors cannot sign off on their own recruit, but their DMs are closed`
                 });
             }
         }
@@ -83,16 +83,22 @@ export default async ({ eventArgs, handler }) => {
                 });
             } catch {
                 await roChannel.send({
-                    content: `Leo Bot attempted to alert \`${user.displayName}\` that they reacted with an invalid reaction, but their DMs are closed`
+                    content: `Leo Bot attempted to alert \`${member.displayName}\` that they reacted with an invalid reaction, but their DMs are closed`
                 }); 
             }
         } else if (promoDate) {
             if (promoDate > createdDate && reaction.emoji.name === '✅') {
                 const promoDateTimestamp = Math.floor(promoDate.getTime() / 1000);
                 await reaction.users.remove(user.id);
-                await user.send({
-                    content: `You became a full NATO member at <t:${promoDateTimestamp}:F>, you may only sign off NRECs who joined NATO after this point. Thank you for dedication to the recruitment process. 🫡`
-                });
+                try {
+                    await user.send({
+                        content: `You became a full NATO member at <t:${promoDateTimestamp}:F>, you may only sign off NRECs who joined NATO after this point. Thank you for dedication to the recruitment process. 🫡`
+                    });
+                } catch {
+                    await roChannel.send({
+                        content: `Leo Bot attempted to alert \`${member.displayName}\` that they cannot sign off on recruits whose eval time has overlapped with their own, but their DMs are closed`
+                    }); 
+                }
             }
         }
         if (reaction.emoji.name === '❌') {
