@@ -13,7 +13,7 @@ export default async ({ eventArgs, handler }) => {
         let cooldown;
         let promoDate;
         let createdDate;
-        const reactionMember = message.guild.members.fetch(user.id)
+        const reactionMember = await message.guild.members.fetch(user.id)
         const recruitMessagesSchema = getRecruitMessagesSchema(handler);
         const document = await recruitMessagesSchema.findOne({ _id: message.guild.id });
         if (document?.roChannel) {
