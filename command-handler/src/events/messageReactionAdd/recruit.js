@@ -47,24 +47,45 @@ export default async ({ eventArgs, handler }) => {
         if (currentDate < cooldown && reaction.emoji.name === '✅') {
             const cooldownTimestamp = Math.floor(cooldown.getTime() / 1000);
             await reaction.users.remove(user.id);
-            await user.send({
-                content: `This NREC has only just joined NATO and is under a 12-hour cool down until <t:${cooldownTimestamp}:F> before we are accepting signoffs. From that point please ensure you have played in at least one match with them **__after__** they officially become a NREC before returning to provide your signoff, thank you 🫡`
-            });
-            return;
+
+            try {
+                await user.send({
+                    content: `This NREC has only just joined NATO and is under a 12-hour cool down until <t:${cooldownTimestamp}:F> before we are accepting signoffs. From that point please ensure you have played in at least one match with them **__after__** they officially become a NREC before returning to provide your signoff, thank you 🫡`
+                });
+            } catch {
+                await roChannel.send({
+                    content: `Leo Bot attempted to alert \`${user.displayName}\` that recruit https://discord.com/channels/${message.guild.id}/${message.channelId}/${message.id} has only just joined NATO and is under cooldown, but their DMs are closed`
+                });
+            } finally {
+                return;
+            }
         }
 
         if (user.id === sponsor && reaction.emoji.name === '✅') {
             await reaction.users.remove(user.id);
-            await user.send({
-                content: `Sponsors cannot check off their own recruit. Your check has been removed`,
-                ephemeral: true
-            });
+
+            try {
+                await user.send({
+                    content: `Sponsors cannot check off their own recruit. Your check has been removed`,
+                    ephemeral: true
+                });
+            } catch {
+                await roChannel.send({
+                    content: `Leo Bot attempted to alert \`${user.displayName}\` that sponsors cannot sign off on their own recruit, but their DMs are closed`
+                });
+            }
         }
         else if (reaction.emoji.name !== '✅' && reaction.emoji.name !== '❌') {
             await reaction.users.remove(user.id);
-            await user.send({
-                content: `Invalid reaction please use \`✅\` in favor or \`❌\` to raise a concern. If you raise a concern, please post a rational on why`
-            });
+            try {
+                await user.send({
+                    content: `Invalid reaction please use \`✅\` in favor or \`❌\` to raise a concern. If you raise a concern, please post a rational on why`
+                });
+            } catch {
+                await roChannel.send({
+                    content: `Leo Bot attempted to alert \`${user.displayName}\` that they reacted with an invalid reaction, but their DMs are closed`
+                }); 
+            }
         } else if (promoDate) {
             if (promoDate > createdDate && reaction.emoji.name === '✅') {
                 const promoDateTimestamp = Math.floor(promoDate.getTime() / 1000);

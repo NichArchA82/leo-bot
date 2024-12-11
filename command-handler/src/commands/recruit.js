@@ -787,6 +787,7 @@ export default {
                     const member = await guild.members.fetch(user.id); 
                     const recruitMessagesSchema = getRecruitMessagesSchema(handler);
                     const document = await recruitMessagesSchema.findOne({ _id: guild.id });
+                    const roChannel = await guild.channels.fetch(document.roChannel); 
 
                     if (!document || !document.promotion?.length) {
                         response({
@@ -810,15 +811,6 @@ export default {
                     );
 
                     try {
-                        //find roles in the discord server
-                        const recruitRole = guild.roles.cache.find(role => role.name === 'Recruit');
-                        const fullMemberRole = guild.roles.cache.find(role => role.name === 'Full Member');
-                        const soldierRole = guild.roles.cache.find(role => role.name === 'Soldier');
-                        //remove recruit role from the user
-                        await member.roles.remove(recruitRole);
-                        //add full member and soldier role to the user
-                        await member.roles.add(fullMemberRole);
-                        await member.roles.add(soldierRole);
                         await user.send({
                             content: `Congratulations! As per the announcement message in https://discord.com/channels/1206492396980797480/1214195155910004736` +`, ` +
                             `you have been promoted to a full NATO member. This means that enough of our members signed ` +
@@ -836,6 +828,22 @@ export default {
                             `    - You can ask any questions you have about the recruitment process here.` +
                             `\n\nWelcome to NATO :saluting_face:`
                         });
+                    } catch {
+                        await roChannel.send({
+                            content: `Leo Bot attempted to send Soldier \`${member.displayName}\` the promotion message, but their DMs are closed`
+                        });
+                    }
+
+                    try {
+                        //find roles in the discord server
+                        const recruitRole = guild.roles.cache.find(role => role.name === 'Recruit');
+                        const fullMemberRole = guild.roles.cache.find(role => role.name === 'Full Member');
+                        const soldierRole = guild.roles.cache.find(role => role.name === 'Soldier');
+                        //remove recruit role from the user
+                        await member.roles.remove(recruitRole);
+                        //add full member and soldier role to the user
+                        await member.roles.add(fullMemberRole);
+                        await member.roles.add(soldierRole);
                     } catch (e) {console.error(e)}
                     response({
                         content: `${message}`,
