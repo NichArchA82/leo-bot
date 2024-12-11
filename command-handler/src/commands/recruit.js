@@ -830,7 +830,7 @@ export default {
                         });
                     } catch {
                         await roChannel.send({
-                            content: `Leo Bot attempted to send Soldier \`${member.displayName}\` the promotion message, but their DMs are closed`
+                            content: `Leo Bot attempted to send \`${member.displayName}\` the promotion message, but their DMs are closed`
                         });
                     }
 
