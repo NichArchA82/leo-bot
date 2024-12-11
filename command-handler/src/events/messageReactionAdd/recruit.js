@@ -13,6 +13,7 @@ export default async ({ eventArgs, handler }) => {
         let cooldown;
         let promoDate;
         let createdDate;
+        const reactionMember = message.guild.members.fetch(user.id)
         const recruitMessagesSchema = getRecruitMessagesSchema(handler);
         const document = await recruitMessagesSchema.findOne({ _id: message.guild.id });
         if (document?.roChannel) {
@@ -54,7 +55,7 @@ export default async ({ eventArgs, handler }) => {
                 });
             } catch {
                 await roChannel.send({
-                    content: `Leo Bot attempted to alert \`${member.displayName}\` that recruit https://discord.com/channels/${message.guild.id}/${message.channelId}/${message.id} has only just joined NATO and is under cooldown, but their DMs are closed`
+                    content: `Leo Bot attempted to alert \`${reactionMember.displayName}\` that recruit https://discord.com/channels/${message.guild.id}/${message.channelId}/${message.id} has only just joined NATO and is under cooldown, but their DMs are closed`
                 });
             } finally {
                 return;
@@ -71,7 +72,7 @@ export default async ({ eventArgs, handler }) => {
                 });
             } catch {
                 await roChannel.send({
-                    content: `Leo Bot attempted to alert \`${member.displayName}\` that sponsors cannot sign off on their own recruit, but their DMs are closed`
+                    content: `Leo Bot attempted to alert \`${reactionMember.displayName}\` that sponsors cannot sign off on their own recruit, but their DMs are closed`
                 });
             }
         }
@@ -83,7 +84,7 @@ export default async ({ eventArgs, handler }) => {
                 });
             } catch {
                 await roChannel.send({
-                    content: `Leo Bot attempted to alert \`${member.displayName}\` that they reacted with an invalid reaction, but their DMs are closed`
+                    content: `Leo Bot attempted to alert \`${reactionMember.displayName}\` that they reacted with an invalid reaction, but their DMs are closed`
                 }); 
             }
         } else if (promoDate) {
@@ -96,7 +97,7 @@ export default async ({ eventArgs, handler }) => {
                     });
                 } catch {
                     await roChannel.send({
-                        content: `Leo Bot attempted to alert \`${member.displayName}\` that they cannot sign off on recruits whose eval time has overlapped with their own, but their DMs are closed`
+                        content: `Leo Bot attempted to alert \`${reactionMember.displayName}\` that they cannot sign off on recruits whose eval time has overlapped with their own, but their DMs are closed`
                     }); 
                 }
             }
