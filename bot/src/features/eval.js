@@ -1,3 +1,7 @@
+/*
+    This file is responsible for scheduling the eval task to run every Monday at 11pm.
+*/
+
 import cron from 'node-cron';
 import evalTask from '../tasks/eval.js';
 

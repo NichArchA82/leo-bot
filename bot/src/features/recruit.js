@@ -1,3 +1,7 @@
+/*
+    This file is responsible for scheduling the recruit task to run every day at midnight.
+*/
+
 import cron from 'node-cron';
 import recruit from '../tasks/recruit.js';
 
