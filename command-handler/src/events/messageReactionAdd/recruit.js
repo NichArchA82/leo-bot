@@ -89,6 +89,8 @@ export default async ({ eventArgs, handler }) => {
             }
         } else if (promoDate) {
             if (promoDate > createdDate && reaction.emoji.name === '✅') {
+                if (new Date(user.joinedAt) > createdDate) return;
+
                 const promoDateTimestamp = Math.floor(promoDate.getTime() / 1000);
                 await reaction.users.remove(user.id);
                 try {
