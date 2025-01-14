@@ -17,7 +17,7 @@ export default class EventHandler {
         if (!events.dir) throw new Error('Events directory is required');
 
         // call the setup function to load all the event listeners
-        // this is reuired because the function is async and 
+        // this is required because the function is async and 
         // we can't have async functions in the constructor
         this.setUp(client, handler, events.dir);
     }
