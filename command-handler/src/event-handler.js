@@ -1,6 +1,13 @@
+/*
+    Event handler for the bot
+    This class is responsible for loading 
+    all the event listeners from the events directory
+*/
+
 import path from "path";
 import url, { fileURLToPath } from "url";
 
+// Get files utility function to get all files in a directory
 import getFiles from "./util/get-files.js";
 
 export default class EventHandler {
@@ -9,18 +16,24 @@ export default class EventHandler {
     constructor(client, handler, events) {
         if (!events.dir) throw new Error('Events directory is required');
 
+        // call the setup function to load all the event listeners
+        // this is required because the function is async and 
+        // we can't have async functions in the constructor
         this.setUp(client, handler, events.dir);
     }
 
+    //setup function to load all the event listeners
     async setUp(client, handler, dir) {
         await this.loadListeners(dir);
         this.registerEvents(client, handler);
     }
 
+    // Load all the event listeners from the events directory
     async loadListeners(dir) {
+        // Get all the files in the events directory
         const botEvents = getFiles(dir, true);
 
-        const currentFilePath = url.fileURLToPath(import.meta.url);
+        const currentFilePath = fileURLToPath(import.meta.url);
         const currentFileDir = path.dirname(currentFilePath);
 
         const builtInEvents = getFiles(path.join(currentFileDir, 'events'), true);

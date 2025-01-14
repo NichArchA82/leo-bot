@@ -1,5 +1,10 @@
+/*
+    This command is used to run scheduled tasks on command.
+*/
+
 import CommandTypes from 'command-handler/src/cmd-handler/command-types.js';
 import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
+//import the tasks denfined in the tasks folder.
 import { recruit, evalTask } from '../tasks/index.js';
 
 export default {
@@ -21,31 +26,47 @@ export default {
     ],
 
     run: async ({ response, handler, interaction }) => {
+        //deferReply is used to acknowledge the command
         await interaction.deferReply({ ephemeral: true });
         
+        //get the subcommand that was used
         const subCommand = interaction.options.getSubcommand(false);
 
+        //check if the database is connected
         if (!handler.isDbConnected) {
             response({
                 content: 'db error: No Connection. Contact developers for help',
                 ephemeral: true,
-            })
+            });
 
             return;
         }
 
-        if (subCommand === 'eval') {
-            evalTask(handler.client, handler);
+        // Define a dictionary to map subcommands to their respective functions
+        const subCommandHandlers = {
+            eval: () => {
+                evalTask(handler.client, handler);
+                response({
+                    content: 'eval task executed',
+                    ephemeral: true,
+                });
+            },
+            recruit: () => {
+                recruit(handler.client, handler);
+                response({
+                    content: 'recruit task executed',
+                    ephemeral: true,
+                });
+            }
+        };
+
+        // Execute the corresponding function for the subcommand
+        if (subCommandHandlers[subCommand]) {
+            subCommandHandlers[subCommand]();
+        } else {
             response({
-                content: 'eval task executed',
+                content: 'Unknown subcommand',
                 ephemeral: true,
-            });
-            
-        } else if (subCommand === 'recruit') {
-            recruit(handler.client, handler);
-            response({
-                content: `recruit task executed`,
-                ephemeral: true
             });
         }
     }

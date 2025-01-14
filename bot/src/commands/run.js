@@ -1,3 +1,7 @@
+/*
+    This is a test command to check if the command handler is working correctly.
+*/
+
 import CommandTypes from 'command-handler/src/cmd-handler/command-types.js';
 import { PermissionFlagsBits } from 'discord.js';
 
