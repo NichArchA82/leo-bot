@@ -29,13 +29,15 @@ export default async ({
     const text = args.join(' ');
 
     const response = (obj) => {
+        const { deferReply = true, ...discordObj } = obj; // Remove deferReply before sending
         if (reply === true || obj.ephemeral === true) {
-            if (message) message.reply(obj);
-            else if (interaction) interaction.editReply(obj);
+            if (message) message.reply(discordObj);
+            else if (interaction && deferReply) interaction.editReply(discordObj);
+            else if (interaction && !deferReply) interaction.reply(discordObj);
         } else {
-            if (message) message.channel.send(obj);
+            if (message) message.channel.send(discordObj);
             else if (interaction) {
-                interaction.channel.send(obj);
+                interaction.channel.send(discordObj);
                 interaction.editReply({ content: 'Message sent', ephemeral: true }).then(() => {
                     interaction.deleteReply();
                 });
@@ -86,7 +88,8 @@ export default async ({
                     allowedMentions: {
                         roles: [],
                     },
-                    ephemeral: true
+                    ephemeral: true,
+                    deferReply: false
                 });
                 return
             }
