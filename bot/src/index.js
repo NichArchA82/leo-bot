@@ -3,7 +3,7 @@ import CH from 'command-handler';
 import path from 'path';
 import mongoose from 'mongoose';
 import 'dotenv/config';
-import 'server';
+// import 'server';
 
 //Initialize the client with the intents and partials that the bot will use
 const client = new Client({
