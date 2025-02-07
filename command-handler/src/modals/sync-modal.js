@@ -30,9 +30,12 @@ export default async ({ interaction, handler }) => {
         const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
         userData.set(interaction.user.id, { playerId, fullDisplayName: `${displayName}#${playerDisplayDigits}`, storedOtp: otpCode });
         try {
-            // await axios.post(`${process.env.HLL_SERVER_URL}/log_otp`, { player_id: playerId, otp: otpCode }, {
-            //     headers: { 'Authorization': `Bearer ${process.env.HLL_API_KEY}` }
-            // });
+            await axios.post(`${process.env.HLL_SERVER_URL}/message_player`, { 
+                player_id: playerId, 
+                message: `Leo Bot got a request to link your t17 account with your discord account\nTo continue, please enter your OTP: ${otpCode}\nIf you did not make this request, you can safely ignore this message.` 
+            }, {
+                headers: { 'Authorization': `Bearer ${process.env.HLL_API_KEY}` }
+            });
 
             const verificationEmbed = new EmbedBuilder()
                 .setTitle('Verify Your Player Info')
@@ -55,7 +58,6 @@ export default async ({ interaction, handler }) => {
                 components: [new ActionRowBuilder().addComponents(otpButton)],
                 ephemeral: true
             });
-            console.log(otpCode); // For debugging, print the OTp
         } catch (error) {
             console.error("Error sending OTP:", error.response ? error.response.data : error.message);
             await interaction.reply({ content: 'Failed to send OTP. Try again later.', ephemeral: true });
