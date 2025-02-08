@@ -16,7 +16,7 @@ export default async ({ interaction, handler }) => {
             }
         })
         .catch(error => {
-            log.error(error);
+            console.error(error);
             response({
                 content: `Error Communicating with the server. Please try again later.`,
                 ephemeral: true
