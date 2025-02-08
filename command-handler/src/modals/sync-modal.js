@@ -62,6 +62,32 @@ export default async ({ interaction, handler }) => {
             console.error("Error sending OTP:", error.response ? error.response.data : error.message);
             await interaction.reply({ content: 'Failed to send OTP. Try again later.', ephemeral: true });
         }
+    } else if (interaction.customId === 'openPlayerInfoModal') {
+        const userInfo = userData.get(interaction.user.id);
+        const { playerId } = userInfo;
+        const infoModal = new ModalBuilder()
+            .setCustomId('playerInfoModal')
+            .setTitle('Enter Your Player Details');
+
+        const playerIdInput = new TextInputBuilder()
+            .setCustomId('player_id')
+            .setLabel('Player ID (Verify it is correct)')
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true)
+            .setValue(playerId);
+
+        const playerDisplayDigits = new TextInputBuilder()
+            .setCustomId('player_digits')
+            .setLabel('4 digits in your display name (exlude the #)')
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true)
+            .setPlaceholder('0000');
+
+            infoModal.addComponents(
+                new ActionRowBuilder().addComponents(playerIdInput),
+                new ActionRowBuilder().addComponents(playerDisplayDigits)
+            );
+        await interaction.showModal(infoModal);
     } else if (interaction.customId === 'openOtpModal') {
         const otpModal = new ModalBuilder()
             .setCustomId('otpModal')
