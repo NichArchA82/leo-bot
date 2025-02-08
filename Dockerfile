@@ -1,7 +1,7 @@
 FROM node:22-alpine
 
 # Install Tesseract OCR and dependencies
-RUN apk add --no-cache tesseract-ocr tesseract-ocr-data
+RUN apk add --no-cache tesseract-ocr tesseract-ocr-data-eng
 
 # Set the working directory to /app
 WORKDIR /app
