@@ -5,7 +5,13 @@
 import getUserDataSchema from '../schemas/sync-schema.js';
 import { userData } from '../temp-storage/userData.js';
 import CommandTypes from '../cmd-handler/command-types.js';
-import { ApplicationCommandOptionType, PermissionFlagsBits, ButtonBuilder, ButtonStyle, ActionRowBuilder } from 'discord.js';
+import { 
+    ApplicationCommandOptionType,
+    PermissionFlagsBits,
+    ButtonBuilder,
+    ButtonStyle,
+    ActionRowBuilder
+} from 'discord.js';
 import tesseract from 'tesseract.js';
 import sharp from 'sharp';
 
@@ -49,9 +55,9 @@ export default {
             const { width, height } = await sharp(imageBuffer).metadata();
           
             if (width === 3840 && height === 2160) { // 4K
-                cropWidth = 800; cropHeight = 200; cropLeft = 3040; cropTop = 100;
+                cropWidth = 800; cropHeight = 160; cropLeft = 2930; cropTop = 240;
             } else if (width === 2560 && height === 1440) { // 1440p
-                cropWidth = 600; cropHeight = 150; cropLeft = 1960; cropTop = 100;
+                cropWidth = 600; cropHeight = 120; cropLeft = 1960; cropTop = 180;
             } else if (width === 1920 && height === 1080) { // 1080p
                 cropWidth = 400; cropHeight = 100; cropLeft = 1470; cropTop = 100;
             } else {
