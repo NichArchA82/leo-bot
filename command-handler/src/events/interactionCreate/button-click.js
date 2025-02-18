@@ -5,7 +5,7 @@ export default async ({ eventArgs, handler }) => {
 
     if (!interaction.isButton()) return;
 
-    if (interaction.customId === 'openOtpModal' || interaction.customId === 'openPlayerInfoModal') {
+    if (interaction.customId === 'openOtpModal' || interaction.customId === 'openPlayerInfoModal' || interaction.customId.startsWith('selectPlayer_')) {
         syncModal({ interaction, handler });
     }
 };
