@@ -27,7 +27,7 @@ jobs:
           tags: ghcr.io/nicharcha82/leo-bot-latest:latest
             
       - name: SSH Remote Commands
-        uses: appleboy/ssh-action@v1.2.0
+        uses: appleboy/ssh-action@v1.2.1
         with:
           key: ${{ secrets.HOST_SSH_KEY }}
           host: ${{ secrets.HOST_IP }}
