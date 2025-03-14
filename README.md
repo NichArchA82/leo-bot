@@ -15,7 +15,7 @@ Leo bot has the following dependiencies for installation
 
 ## Instructions
 Pull down the latest image from GHCR
-`docker pull ghcr.io/nicharcha82/leo-bot-latest:latest`
+`docker pull ghcr.io/nicharcha82/leo-bot:latest`
 
 If you already have a bot running, you will need to remove that image
 `docker rm -f leo-bot`
@@ -30,7 +30,7 @@ EVENT_GUILDS=<DISCORD_EVENT_GUILDS_SERVER_ID_1>,<DISCORD_EVENT_GUILDS_SERVER_ID_
 ```
 
 You can then run Leo Bot by passing in the .env file in docker run command:
-`docker run --env-file <path-to-.env-file -d -p 8080:5000 --name leo-bot ghcr.io/nicharcha82/leo-bot-latest:latest`
+`docker run --env-file <path-to-.env-file -d -p 8080:5000 --name leo-bot --restart unless-stopped ghcr.io/nicharcha82/leo-bot:latest`
 
 # Compile
 If you would like to change the source code, or compile Leo Bot yourself continue to read the compile instructions, or simply install the prebuilt image or [invite](https://discord.com/oauth2/authorize?client_id=1246326917334962188&permissions=8&scope=bot) Leo Bot to your server
@@ -55,4 +55,4 @@ If you already have a bot running, you will need to remove that image
 `docker rm -f leo-bot`
 
 You can then run Leo Bot by passing in the .env file in docker run command:
-`docker run --env-file <path-to-.env-file -d -p 8080:5000 --name leo-bot <DOCKER_IMAGE_NAME>`
+`docker run --env-file <path-to-.env-file -d -p 8080:5000 --name leo-bot --restart unless-stopped <DOCKER_IMAGE_NAME>`
