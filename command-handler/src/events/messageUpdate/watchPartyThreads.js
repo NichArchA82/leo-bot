@@ -1,6 +1,8 @@
-import { getLogger } from '../../../../logging/logger.js';
+import logger from '../../util/logger.js';
 import getWatchPartySchema from '../../schemas/watch-party.schema.js';
 import axios from 'axios';
+
+const log = logger();
 
 export default async ({ eventArgs, handler }) => {
   const [message] = eventArgs;
@@ -9,11 +11,9 @@ export default async ({ eventArgs, handler }) => {
   if (!document) return;
   const eventId = document.eventId;
   const guildId = message.guild.id;
-  const logger = getLogger(guildId, eventId);
   let member;
 
   try {
-    logger.info(`--------------|[TASK START ]|-----------------`);
     const response = await axios.get(`https://raid-helper.dev/api/v2/events/${eventId}`);
     const data = response.data;
     const signups = data.signUps;
@@ -26,7 +26,6 @@ export default async ({ eventArgs, handler }) => {
       { $project: { _id: 0, userIds: 1 } }
   ]);
   
-  console.log(result);
   if (result.length > 0) {
   
       for (const thread of document.threads) {
@@ -37,7 +36,6 @@ export default async ({ eventArgs, handler }) => {
                 if (member.roles.cache.has(discordRole.id)) {
                   await member.roles.remove(discordRole);
                 }
-                logger.info(`Removing user ${member.displayName} from thread ${thread.threadName} because they are no longer with that squad`);
                   // Pull user from database
                   await watchPartySchema.findOneAndUpdate(
                       { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
@@ -70,7 +68,6 @@ export default async ({ eventArgs, handler }) => {
           }
         }
       } catch {
-        logger.error('Error fetching member or adding and removing roles: continuing');
         continue;
       }
       let threadExists = false;
@@ -86,7 +83,6 @@ export default async ({ eventArgs, handler }) => {
               (thread.threadName !== className)
              ) {
               // Pull user from database
-              logger.info(`Removing user ${member.displayName} from thread ${thread.threadName}`);
               await watchPartySchema.findOneAndUpdate(
                 { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
                 {
@@ -108,7 +104,6 @@ export default async ({ eventArgs, handler }) => {
         if (thread.threadName === className) {
           threadExists = true;
           if (userExists === false) {
-            logger.info(`adding user ${member.displayName} to thread ${thread.threadName}`);
             await watchPartySchema.findOneAndUpdate(
               { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
               {
@@ -124,9 +119,7 @@ export default async ({ eventArgs, handler }) => {
         }
       }
     }
-    logger.info(`---------------|[TASK END ]|------------------`);
   } catch (error) {
-    logger.error('Error in squad threads:', {error: error, stack: error.stack});
-    logger.info(`---------------|[TASK END ]|------------------`);
+    log.error('Error in squad threads:', {error: error, stack: error.stack});
   }
 };

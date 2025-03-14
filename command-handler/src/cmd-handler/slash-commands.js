@@ -1,3 +1,7 @@
+import logger from "../util/logger.js";
+
+const log = logger();
+
 export default class SlashCommands {
     constructor(client) {
         this._client = client;
@@ -58,7 +62,7 @@ export default class SlashCommands {
             const obj2 = JSON.parse(JSON.stringify(oldOpt));
 
             if (description !== oldDesc || !this.areOptionsSame(obj1, obj2)) {
-                console.log(`Updating Slash Command: ${name}`)
+                log.info(`Updating Slash Command: ${name}`)
                 await commands.edit(existingCommand.id, { description, options });
             }
 
@@ -82,7 +86,7 @@ export default class SlashCommands {
             return;
         }
 
-        console.log(`Deleting Slash Command: ${name}`)
+        log.info(`Deleting Slash Command: ${name}`)
         await existingCommand.delete();
     }
 }

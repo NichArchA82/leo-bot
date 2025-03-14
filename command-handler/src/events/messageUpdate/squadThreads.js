@@ -1,7 +1,9 @@
-import { getLogger } from '../../../../logging/logger.js';
 import { ChannelType } from 'discord.js';
 import getOperationsSchema from '../../schemas/operations.schema.js';
+import logger from '../../util/logger.js';
 import axios from 'axios';
+
+const log = logger();
 
 export default async ({ eventArgs, handler }) => {
   const [message] = eventArgs;
@@ -10,11 +12,9 @@ export default async ({ eventArgs, handler }) => {
   if (!document) return;
   const eventId = document.eventId;
   const guildId = message.guild.id;
-  const logger = getLogger(guildId, eventId);
   let member;
 
   try {
-    logger.info(`--------------|[TASK START ]|-----------------`);
     const response = await axios.get(`https://raid-helper.dev/api/v2/events/${eventId}`);
     const data = response.data;
     const signups = data.signUps;
@@ -37,7 +37,6 @@ export default async ({ eventArgs, handler }) => {
                 if (member.roles.cache.has(discordRole.id)) {
                   await member.roles.remove(discordRole);
                 }
-                logger.info(`Removing user ${member.displayName} from thread ${thread.threadName} because they are no longer with that squad`);
                   // Pull user from database
                   await operationsSchema.findOneAndUpdate(
                       { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
@@ -70,7 +69,6 @@ export default async ({ eventArgs, handler }) => {
           }
         }
       } catch {
-        logger.error('Error fetching member or adding and removing roles: continuing');
         continue;
       }
       let threadExists = false;
@@ -95,7 +93,6 @@ export default async ({ eventArgs, handler }) => {
               || ['Bench', 'Absence', 'Tentative', 'Late'].includes(className)))
              ) {
               // Pull user from database
-              logger.info(`Removing user ${member.displayName} from thread ${thread.threadName}`);
               await operationsSchema.findOneAndUpdate(
                 { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
                 {
@@ -117,7 +114,6 @@ export default async ({ eventArgs, handler }) => {
         if (thread.threadName === className) {
           threadExists = true;
           if (userExists === false) {
-            logger.info(`adding user ${member.displayName} to thread ${thread.threadName}`);
             await operationsSchema.findOneAndUpdate(
               { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
               {
@@ -136,7 +132,6 @@ export default async ({ eventArgs, handler }) => {
           && !(['Soldier', 'Sniper', 'Tank_Crewman'].includes(role) 
           || ['Bench', 'Late', 'Tentative', 'Absence'].includes(className)))) {
           if (userExists === false) {
-            logger.info(`adding user ${member.displayName} to thread ${thread.threadName}`);
             await operationsSchema.findOneAndUpdate(
               { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
               {
@@ -153,7 +148,6 @@ export default async ({ eventArgs, handler }) => {
 
           if (thread.threadName === 'COMMS' && className !== 'Absence') {
             if (userExists === false) {
-              logger.info(`adding user ${member.displayName} to thread ${thread.threadName}`);
               await operationsSchema.findOneAndUpdate(
                 { _id: `${message.guild.id}-${eventId}`, "threads.threadId": thread.threadId },
                 {
@@ -169,7 +163,6 @@ export default async ({ eventArgs, handler }) => {
             }
 
         if (!thread.users.length && thread.threadName !== 'Command' && thread.threadName !== 'COMMS') {
-          logger.info(`Removing thread ${thread.threadName} because all users have left`);
           const threadChannel = await handler.client.channels.fetch(thread.threadId);
           await threadChannel.delete();
           await operationsSchema.findOneAndUpdate(
@@ -186,7 +179,6 @@ export default async ({ eventArgs, handler }) => {
 
       if (!threadExists && !['Commander', 'Bench', 'Late', 'Tentative', 'Absence'].includes(className)) {
         try {
-          logger.info(`creating new thread ${className}`);
           const threadChannel = await message.channel.threads.create({
             name: `${className}`,
             type: ChannelType.PrivateThread,
@@ -210,15 +202,13 @@ export default async ({ eventArgs, handler }) => {
 
           // Add users to the thread
           await threadChannel.members.add(userId);
-          logger.info(`added user ${member.displayName} to new thread ${className}`);
+
         } catch (error) {
           console.error('Error creating thread:', error);
         }
       }
     }
-    logger.info(`---------------|[TASK END ]|------------------`);
   } catch (error) {
-    logger.error('Error in squad threads:', {error: error, stack: error.stack});
-    logger.info(`---------------|[TASK END ]|------------------`);
+    log.error('Error in squad threads:', {error: error, stack: error.stack});
   }
 };

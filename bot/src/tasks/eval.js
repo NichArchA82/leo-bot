@@ -6,6 +6,9 @@
 import getRecruitMessagesSchema from 'command-handler/src/schemas/recruit-messages-schema.js';
 import 'dotenv/config';
 import { EmbedBuilder } from 'discord.js';
+import logger from 'command-handler/src/util/logger.js';
+
+const log = logger();
 
 export default async (client, handler) => {
     // Get the schema for the recruit messages
@@ -30,7 +33,7 @@ export default async (client, handler) => {
         evalMsgChannel = await client.channels.fetch(document.evalMsgChannel);
         roChannel = await client.channels.fetch(document.roChannel);
     } catch (error) {
-        console.log('Error fetching channels', error);
+        log.error('Error fetching channels', error);
         return;
     }
 

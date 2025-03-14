@@ -4,10 +4,13 @@
 
 import cron from 'node-cron';
 import recruit from '../tasks/recruit.js';
+import logger from 'command-handler/src/util/logger.js';
+
+const log = logger();
 
 export default (client, handler) => {
     cron.schedule('0 0 * * *', async () => {
-        console.log('Schedule firing');
+        log.info('Schedule firing');
         recruit(client, handler);
     }, {
         scheduled: true,
