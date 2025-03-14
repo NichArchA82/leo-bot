@@ -4,6 +4,7 @@ and sending a message to the RO channel if the recruit has received all their si
 */
 
 import getRecruitMessagesSchema from 'command-handler/src/schemas/recruit-messages-schema.js';
+import logger from 'command-handler/src/util/logger.js';
 import 'dotenv/config';
 
 export default async (client, handler) => {
@@ -24,7 +25,7 @@ export default async (client, handler) => {
     try {
         evalBoardChannel = await client.channels.fetch(document.evalChannel);
     } catch (error) {
-        console.log('Error fetching evalBoardChannel', error);
+        log.error('Error fetching evalBoardChannel', error);
     }
 
     // Try to fetch the roChannel
@@ -34,7 +35,7 @@ export default async (client, handler) => {
             try {
                 roChannel = await client.channels.fetch(document.roChannel);
             } catch (error) {
-                console.log('Error fetching roChannel', error);
+                log.error('Error fetching roChannel', error);
                 
             }
         }
