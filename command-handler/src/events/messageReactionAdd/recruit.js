@@ -33,6 +33,7 @@ export default async ({ eventArgs, handler }) => {
                 evalMsg = true;
                 cooldown = new Date(msg.cooldown);
                 createdDate = new Date(msg.createdAt);
+                minEvalDate = new Date(msg.minEvalDate);
                 break;
             }
         }
@@ -89,7 +90,7 @@ export default async ({ eventArgs, handler }) => {
             }
         } else if (promoDate) {
             if (promoDate > createdDate && reaction.emoji.name === '✅') {
-                if (new Date(user.joinedAt) < createdDate) return;
+                if (new Date(reactionMember.joinedAt) > createdDate) return;
 
                 const promoDateTimestamp = Math.floor(promoDate.getTime() / 1000);
                 await reaction.users.remove(user.id);
