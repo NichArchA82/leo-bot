@@ -33,7 +33,6 @@ export default async ({ eventArgs, handler }) => {
                 evalMsg = true;
                 cooldown = new Date(msg.cooldown);
                 createdDate = new Date(msg.createdAt);
-                minEvalDate = new Date(msg.minEvalDate);
                 break;
             }
         }
