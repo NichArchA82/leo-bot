@@ -6,6 +6,7 @@ and sending a message to the RO channel if the recruit has received all their si
 import getRecruitMessagesSchema from 'command-handler/src/schemas/recruit-messages-schema.js';
 import logger from 'command-handler/src/util/logger.js';
 import 'dotenv/config';
+const log = logger();
 
 export default async (client, handler) => {
     // Get the schema for the recruit messages
