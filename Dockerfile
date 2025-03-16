@@ -7,7 +7,6 @@ WORKDIR /app
 COPY bot/ bot/
 COPY command-handler/ command-handler/
 COPY server/ server/
-COPY logging/ logging
 
 # Install dependencies and link command-handler globally
 WORKDIR /app/command-handler
@@ -18,10 +17,6 @@ RUN npm link
 WORKDIR /app/server
 RUN npm ci
 RUN npm link
-
-# Install dependencies for logging
-WORKDIR /app/logging
-RUN npm ci
 
 # Go to bot directory, install dependencies, and link both command-handler and server
 WORKDIR /app/bot

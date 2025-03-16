@@ -1,10 +1,12 @@
 import { Client, IntentsBitField, Partials } from 'discord.js';
 import CH from 'command-handler';
+import logger from 'command-handler/src/util/logger.js';
 import path from 'path';
 import mongoose from 'mongoose';
 import 'dotenv/config';
 import 'server';
 
+const log = logger();
 //Initialize the client with the intents and partials that the bot will use
 const client = new Client({
     intents: [
@@ -24,7 +26,7 @@ const client = new Client({
 
 //When the bot is ready, connect to the database and initialize the command handler
 client.once('ready', async () => {
-    console.log('Bot is ready');
+    log.info('Bot is ready');
 
     const connection = await mongoose.connect(process.env.MONGO_URI);
 
