@@ -11,10 +11,14 @@ export default async ({ eventArgs, handler }) => {
     if (interaction.type !== InteractionType.ModalSubmit) return;
 
     if (interaction.customId === 'issueModal') {
+        const member = await interaction.guild.members.fetch(interaction.user.id).catch(() => null);
+        const displayName = member?.displayName || interaction.user.displayName;
         const issueTitle = interaction.fields.getTextInputValue('issue_title');
-        const issueDescription = interaction.fields.getTextInputValue('issue_description');
+        const issueDescription = interaction.fields.getTextInputValue('issue_description') +
+            `\n\n---\n\nThis issue was opened by ${displayName} ` + 
+            `from ${interaction.client.user.username} in ${interaction.guild?.name}`;
         const issueType = interaction.fields.getTextInputValue('issue_type');
-        const labels = issueType ? [issueType] : [];
+        const labels = issueType ? [ issueType, 'leo-bot' ] : [ 'leo-bot' ];
 
         try {
             await axios.post(`https://api.github.com/repos/${process.env.ISSUE_REPO}/issues`, 
