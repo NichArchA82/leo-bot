@@ -11,7 +11,7 @@ const log = logger();
 export default (client, handler) => {
     cron.schedule('0 0 * * *', async () => {
         log.info('Schedule firing');
-        recruit(client, handler);
+        recruit({ client, handler });
     }, {
         scheduled: true,
         timezone: "America/Denver"

@@ -13,7 +13,7 @@ export default (client, handler) => {
     // 0 23 * * 1
     cron.schedule('0 23 * * 1', async () => {
         log.info('Schedule firing');
-        evalTask(client, handler);
+        evalTask({ client, handler });
     }, {
         scheduled: true,
         timezone: "America/Denver"
