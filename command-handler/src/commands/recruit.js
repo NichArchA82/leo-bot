@@ -7,6 +7,7 @@
 import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
 import commandTypes from '../cmd-handler/command-types.js';
 import getRecruitMessagesSchema from '../schemas/recruit-messages-schema.js';
+import evalTask from '../../../bot/src/tasks/eval.js';
 
 /**
  * A helper function to update a specific setting in the recruit messages schema.
@@ -365,6 +366,35 @@ const subcommandHandlers = {
             await roChannel.send({
                 content: `Leo Bot attempted to send \`${member.displayName}\` the promotion message, but their DMs are closed`
             });
+        }
+
+        try {
+            // Try to fetch the evalBoardChannel
+            const evalBoardChannel = await handler.client.channels.fetch(document.evalChannel);
+            if (!evalBoardChannel) {
+                throw new Error('Eval board channel not found');
+            }
+
+            for (const msg of document.evalMessages) {
+                if (msg.recruitId === user.id) {
+                    try {
+                        const evalMsg = await evalBoardChannel.messages.fetch(msg.messageId);
+                        if (evalMsg) {
+                            await evalMsg.delete();
+                        }
+                    } catch (error) {
+                        console.error(`Error deleting eval message for ${user.id}:`, error);
+                    }
+                }
+            }
+            evalTask({ client: handler.client, handler, guildID: guild.id });
+        } catch (e) {
+            console.error('Error during eval task:', e);
+            response({
+                content: `Error during eval task.`,
+                ephemeral: true,
+            });
+            return;
         }
 
         try {
