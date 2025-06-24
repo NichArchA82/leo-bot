@@ -475,7 +475,7 @@ const subcommandHandlers = {
     // === HELP COMMAND ===
     'help': async ({ response }) => {
         response({
-            content: `The recruit command has 4 subcommand groups: setup, edit, send, and preview... (Full help message here)`,
+            content: `The recruit command has 4 subcommand groups: setup, edit, send, and preview. Setup will walk users through the entire setup process for the messages. The following placeholders are: <MEMBER> this will replace the part of the message with the recruit (used in all three messages), <DATE> this will replace the part of the message with the current date with 7 days added (min eval of a week)(used in eval message only), <MIN_EVAL> This will replace the part of the message with the number of checks required, 8 for sponsored recruits 10 for non-sponsored(used in eval message only), <SPONSOR> this will replace the part of the message with the sponsored user, or None if no sponsor was provided. (Eval message only), and <COOLDOWN> this will replace the part of the message with the cooldown before evaluations are accepted. using recruit send recruit-welcome will send all three messages, the edit commands are for individually editing the messages, and the preview command will send a preview of the messages in each channel the command is ran, with no restrictions imposed on them.`,
             ephemeral: true,
         });
     },
