@@ -8,13 +8,13 @@ import logger from 'command-handler/src/util/logger.js';
 import 'dotenv/config';
 const log = logger();
 
-export default async (client, handler) => {
+export default async ({ client, handler, guildID=null }) => {
     // Get the schema for the recruit messages
     const recruitMessagesSchema = getRecruitMessagesSchema(handler);
     // Get the current date
     const currentDate = new Date();
     // Find the document for the guild that the event is running in
-    const document = await recruitMessagesSchema.findOne({ _id: process.env.EVENT_GUILDS });
+    const document = await recruitMessagesSchema.findOne({ _id: guildID || process.env.EVENT_GUILDS });
     //return if the document doesn't exist
     if (!document) return;
     // Define the channels to be used in the task
