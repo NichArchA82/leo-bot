@@ -45,14 +45,14 @@ export default {
         // Define a dictionary to map subcommands to their respective functions
         const subCommandHandlers = {
             eval: () => {
-                evalTask(handler.client, handler);
+                evalTask({ client: handler.client, handler, guildID: interaction.guildId });
                 response({
                     content: 'eval task executed',
                     ephemeral: true,
                 });
             },
             recruit: () => {
-                recruit(handler.client, handler);
+                recruit({ client: handler.client, handler, guildID: interaction.guildId });
                 response({
                     content: 'recruit task executed',
                     ephemeral: true,

@@ -10,13 +10,13 @@ import logger from 'command-handler/src/util/logger.js';
 
 const log = logger();
 
-export default async (client, handler) => {
+export default async ({ client, handler, guildID=null }) => {
     // Get the schema for the recruit messages
     const recruitMessagesSchema = getRecruitMessagesSchema(handler);
     // Get the current date
     const currentDate = new Date();
     // Find the document for the event guilds
-    let document = await recruitMessagesSchema.findOne({ _id: process.env.EVENT_GUILDS });
+    let document = await recruitMessagesSchema.findOne({ _id: guildID || process.env.EVENT_GUILDS });
     // Initialize the status message to an empty string. This will be used to store the status of each NREC.
     let statusMsg = "";
     // Initialize the last message ID to null. This will be used to fetch messages to delete.
