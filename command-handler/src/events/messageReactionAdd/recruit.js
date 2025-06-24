@@ -106,7 +106,7 @@ export default async ({ eventArgs, handler }) => {
         }
         if (reaction.emoji.name === '❌') {
             await roChannel.send({
-                content: `${user} raised a concern against recruit "${member}" ( https://discord.com/channels/${message.guild.id}/${message.channelId}/${message.id} )`,
+                content: `\`${reactionMember.displayName}\` raised a concern against recruit \`${member.displayName}\` ( https://discord.com/channels/${message.guild.id}/${message.channelId}/${message.id} )`,
                 allowedMentions: {
                     roles: [],
                     users: [],
