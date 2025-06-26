@@ -99,7 +99,7 @@ const subcommandHandlers = {
         const user = interaction.options.getUser('recruited-user');
         const sponsor = interaction.options.getUser('sponsor-user') ?? 'None';
         const cooldownToggle = interaction.options.getBoolean('cooldown') ?? true;
-        const minEvalValue = sponsor === 'None' ? 10 : 8;
+        const minEvalValue = sponsor === 'None' ? 8 : 6;
         const recruitMessagesSchema = getRecruitMessagesSchema(handler);
         const document = await recruitMessagesSchema.findOne({ _id: guild.id });
         let recruitMember;
@@ -224,7 +224,7 @@ const subcommandHandlers = {
         const user = interaction.options.getUser('recruited-user');
         const sponsor = interaction.options.getUser('sponsor-user') ?? 'None';
         const cooldownToggle = interaction.options.getBoolean('cooldown') ?? true;
-        const minEvalValue = sponsor === 'None' ? 10 : 8;
+        const minEvalValue = sponsor === 'None' ? 8 : 6;
         const recruitMessagesSchema = getRecruitMessagesSchema(handler);
         const document = await recruitMessagesSchema.findOne({ _id: guild.id });
         let displayName;
@@ -443,7 +443,7 @@ const subcommandHandlers = {
         const user = interaction.options.getUser('recruited-user');
         const sponsor = interaction.options.getUser('sponsor-user') ?? 'None';
         const cooldownToggle = interaction.options.getBoolean('cooldown') ?? true;
-        const minEvalValue = sponsor === 'None' ? 10 : 8;
+        const minEvalValue = sponsor === 'None' ? 8 : 6;
         let displayName;
         let cooldown;
         let minEvalDate;

@@ -85,7 +85,7 @@ export default async ({ client, handler, guildID=null }) => {
         }
 
         // Set the number of signoffs required based on whether the recruit has a sponsor
-        const signoffs = msg.sponsorId === 'None' ? 10 : 8;
+        const signoffs = msg.sponsorId === 'None' ? 8 : 6;
 
         if (msg.sponsorId === 'None') {
             sponsorMember = 'None';
