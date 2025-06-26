@@ -99,7 +99,7 @@ export default async ({ client, handler, guildID=null }) => {
         const concerns = reactions.get('❌')?.count || 0;
 
         // If the recruit has received all their signoffs, send a message to the RO channel
-        if ((checks >= 8 && msg.sponsorId !== 'None') || (checks >= 10 && msg.sponsorId === 'None')) {
+        if ((checks >= 6 && msg.sponsorId !== 'None') || (checks >= 8 && msg.sponsorId === 'None')) {
             roChannel.send({
                 content: `Recruit \`${recruitMember.displayName}\` received all their signoffs ( https://discord.com/channels/${message.guild.id}/${message.channelId}/${message.id} )`,
                 allowedMentions: {
