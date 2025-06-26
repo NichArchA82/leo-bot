@@ -26,6 +26,72 @@ const updateRecruitSetting = async (handler, guildId, updateData) => {
     );
 };
 
+// Helper function to generate all data related to a recruit evaluation
+const generateEvalData = async ({ interaction, guild, document }) => {
+    const recruitUser = interaction.options.getUser('recruited-user');
+    const sponsorUser = interaction.options.getUser('sponsor-user') ?? 'None';
+    const cooldownToggle = interaction.options.getBoolean('cooldown') ?? true;
+    const minEvalValue = sponsorUser === 'None' ? 8 : 6;
+    let recruitMember;
+    let recruitDisplayName;
+    let sponsDisplayName;
+    try {
+        recruitMember = await guild.members.fetch(recruitUser.id);
+        recruitDisplayName = recruitMember.displayName;
+
+        if (sponsorUser !== 'None') {
+            const sponsMember = await guild.members.fetch(sponsorUser.id);
+            sponsDisplayName = sponsMember.displayName;
+        } else {
+            sponsDisplayName = "None";
+        }
+    } catch (error) {
+        console.error('Helper Error: Could not fetch member details.', error);
+        return { success: false, error: 'Could not fetch member details. Ensure the user is in the server.' };
+    }
+
+    const currentDate = new Date();
+    let cooldown;
+    let minEvalDate;
+
+    if (sponsorUser !== 'None' && cooldownToggle) {
+        cooldown = new Date(currentDate);
+        cooldown.setHours(currentDate.getHours() + 12);
+    } else {
+        cooldown = new Date(currentDate);
+    }
+
+    if (sponsorUser !== 'None') {
+        minEvalDate = new Date(currentDate);
+        minEvalDate.setDate(currentDate.getDate() + 7);
+    } else {
+        minEvalDate = new Date(currentDate);
+        minEvalDate.setDate(currentDate.getDate() + 14);
+    }
+
+    const unixTimestamp = Math.floor(minEvalDate.getTime() / 1000);
+    const cooldownTimestamp = Math.floor(cooldown.getTime() / 1000);
+
+    const eMessage = document.eval
+        .replaceAll('<MEMBER>', recruitDisplayName)
+        .replaceAll('<SPONSOR>', sponsDisplayName)
+        .replaceAll('<DATE>', `<t:${unixTimestamp}:D>`)
+        .replaceAll('<MIN_EVAL>', minEvalValue)
+        .replaceAll('<COOLDOWN>', `<t:${cooldownTimestamp}:F>`);
+
+    return {
+        success: true,
+        recruitUser,
+        sponsorUser,
+        recruitMember,
+        recruitDisplayName,
+        sponsDisplayName,
+        eMessage,
+        minEvalDate,
+        cooldown
+    };
+};
+
 // This object maps subcommand strings to their handler functions.
 // Format for keys: '[subcommandGroup:]subcommand'
 const subcommandHandlers = {
@@ -96,225 +162,121 @@ const subcommandHandlers = {
 
     // === SEND COMMANDS ===
     'send:recruit-welcome': async ({ interaction, handler, guild, response }) => {
-        const user = interaction.options.getUser('recruited-user');
-        const sponsor = interaction.options.getUser('sponsor-user') ?? 'None';
-        const cooldownToggle = interaction.options.getBoolean('cooldown') ?? true;
-        const minEvalValue = sponsor === 'None' ? 8 : 6;
         const recruitMessagesSchema = getRecruitMessagesSchema(handler);
         const document = await recruitMessagesSchema.findOne({ _id: guild.id });
-        let recruitMember;
-        let recruitDisplayName;
-        let sponsDisplayName;
-        let cooldown;
-        let minEvalDate;
+
+        // Check for all required fields for THIS command
+        if (!document || !document.genGreeting?.length || !document.procGreeting?.length || !document.eval?.length || !document.genChannel?.length || !document.procChannel?.length || !document.evalChannel?.length) {
+            return response({
+                content: `Error: Not all required fields found in the database. Please run \`/recruit setup\` first.`,
+                ephemeral: true,
+            });
+        }
+
+        const evalData = await generateEvalData({ interaction, guild, document });
+        if (!evalData.success) {
+            return response({ content: `Error: ${evalData.error}`, ephemeral: true });
+        }
+        
         try {
-            //find roles in the discord server
             const recruitRole = guild.roles.cache.find(role => role.name === 'Recruit');
             const natoRole = guild.roles.cache.find(role => role.name === 'NATO');
             const newberryRole = guild.roles.cache.find(role => role.name === 'Newberry');
-            recruitMember = await guild.members.fetch(user.id);
-            if (sponsor !== 'None') {
-                const sponsUser = await guild.members.fetch(sponsor.id);
-                sponsDisplayName = sponsUser.displayName;
-            } else {
-                sponsDisplayName = "None";
+            
+            await evalData.recruitMember.roles.add(recruitRole);
+            await evalData.recruitMember.roles.add(natoRole);
+            await evalData.recruitMember.roles.remove(newberryRole);
+
+            const genChannel = await guild.channels.fetch(document.genChannel);
+            const procChannel = await guild.channels.fetch(document.procChannel);
+            const evalChannel = await guild.channels.fetch(document.evalChannel);
+            const roChannel = await guild.channels.fetch(document.roChannel);
+
+            const genGreetMsg = document.genGreeting.replaceAll('<MEMBER>', evalData.recruitUser);
+            const inProcGreetMsg = document.procGreeting.replaceAll('<MEMBER>', evalData.recruitUser);
+            
+            try {
+                await evalData.recruitMember.send(inProcGreetMsg);
+            } catch {
+                await roChannel.send(`Leo Bot attempted to send Recruit \`${evalData.recruitDisplayName}\` the recruit welcome message, but their DMs are closed.`);
             }
-            //add recruit role from the user
-            await recruitMember.roles.add(recruitRole);
-            //add NATO role to the user
-            await recruitMember.roles.add(natoRole);
-            //remove the Newberry role from the user
-            await recruitMember.roles.remove(newberryRole);
-            recruitDisplayName = recruitMember.displayName; // This will be the nickname in the guild, or the username if no nickname is set
-        } catch (error) {
-            console.error('Error fetching member:', error);
-        }
-
-        if (!document || !document.genGreeting?.length || !document.procGreeting?.length || !document.eval?.length || !document.genChannel?.length || !document.procChannel?.length || !document.evalChannel?.length) {
-            response({
-                content: `error. Not all required fields found in the database. Please run /recruit setup first.`,
-                ephemeral: true,
-            });
-            return;
-        }
-
-        const currentDate = new Date();
-        
-        //new logic for cooldown to add a toggle option
-        if (sponsor !== 'None' && cooldownToggle) {
-            // cooldown.setMinutes(currentDate.getMinutes() + 1);
-            cooldown = new Date(currentDate);
-            cooldown.setHours(currentDate.getHours() + 12);
-        } else {
-            cooldown = new Date(currentDate);
-        }
-        
-        if (sponsor !== 'None') {
-            minEvalDate = new Date(currentDate);
-            minEvalDate.setDate(currentDate.getDate() + 7);
-        } else {
-            minEvalDate = new Date(currentDate);
-            minEvalDate.setDate(currentDate.getDate() + 14);
-        }
-
-        const unixTimestamp = Math.floor(minEvalDate.getTime() / 1000);
-        const cooldownTimestamp = Math.floor(cooldown.getTime() / 1000);
-        const genGreetMsg = document.genGreeting.replaceAll('<MEMBER>', user);
-        const inProcGreetMsg = document.procGreeting.replaceAll('<MEMBER>', user);
-        const eMessage = document.eval.replaceAll('<MEMBER>', recruitDisplayName).replaceAll('<SPONSOR>', sponsDisplayName).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`).replaceAll('<MIN_EVAL>', minEvalValue).replaceAll('<COOLDOWN>', `<t:${cooldownTimestamp}:F>`);
-        const genChannel = await guild.channels.fetch(document.genChannel);
-        const procChannel = await guild.channels.fetch(document.procChannel);
-        const evalChannel = await guild.channels.fetch(document.evalChannel);
-        const roChannel = await guild.channels.fetch(document.roChannel);
-
-        if (!genChannel || !procChannel || !evalChannel) {
-            response({
-                content: `error sending messages. Incorrect channel ids specified`,
-                ephemeral: true,
-            });
-            return;
-        }
-
-        try {
-            await recruitMember.send(inProcGreetMsg);
-        } catch {
-            await roChannel.send({
-                content: `Leo Bot attempted to send Recruit \`${recruitMember.displayName}\` the recruit welcome message, but their DMs are closed`
-            });
-        }
-        
-        try { 
+            
             await genChannel.send(genGreetMsg);
-            await procChannel.send({
-                content: `${recruitDisplayName} has been promoted to recruit and sent to the https://discord.com/channels/1206492396980797480/1214195155910004736`
-            });
+            await procChannel.send(`${evalData.recruitDisplayName} has been promoted to recruit and sent to the https://discord.com/channels/1206492396980797480/1214195155910004736`);
+            
             const evalMsg = await evalChannel.send({
-                content: `${eMessage}`,
-                allowedMentions: {
-                    roles: [],
-                    users: [],
-                },
-            })
+                content: evalData.eMessage,
+                allowedMentions: { roles: [], users: [] },
+            });
+
             await recruitMessagesSchema.findOneAndUpdate(
                 { _id: guild.id },
                 {
                     $push: {
                         evalMessages: {
                             messageId: evalMsg.id,
-                            sponsorId: typeof sponsor === 'object' ? sponsor.id : 'None',
-                            recruitId: user.id,
-                            minEvalDate: minEvalDate.setUTCHours(0, 0, 0, 0),
-                            cooldown: cooldown
+                            sponsorId: evalData.sponsorUser === 'None' ? 'None' : evalData.sponsorUser.id,
+                            recruitId: evalData.recruitUser.id,
+                            minEvalDate: evalData.minEvalDate.setUTCHours(0, 0, 0, 0),
+                            cooldown: evalData.cooldown
                         }
                     }
                 },
                 { upsert: true }
             );
-        } catch (err) {
-            response({
-                content: `error sending recruit messages.`,
-                ephemeral: true,
-            });
-            return;
-        }
 
-        response({ content: `Recruit messages sent.`, ephemeral: true });
+            response({ content: `Recruit messages sent.`, ephemeral: true });
+
+        } catch (error) {
+            console.error('Error in send:recruit-welcome:', error);
+            response({ content: `An error occurred while processing the recruit welcome.`, ephemeral: true });
+        }
     },
     'send:recruit-eval': async ({ interaction, handler, guild, response }) => {
-        const user = interaction.options.getUser('recruited-user');
-        const sponsor = interaction.options.getUser('sponsor-user') ?? 'None';
-        const cooldownToggle = interaction.options.getBoolean('cooldown') ?? true;
-        const minEvalValue = sponsor === 'None' ? 8 : 6;
         const recruitMessagesSchema = getRecruitMessagesSchema(handler);
         const document = await recruitMessagesSchema.findOne({ _id: guild.id });
-        let displayName;
-        let cooldown;
-        let minEvalDate;
-        try {
-            //find roles in the discord server
-            const recruitRole = guild.roles.cache.find(role => role.name === 'Recruit');
-            const natoRole = guild.roles.cache.find(role => role.name === 'NATO');
-            const member = await guild.members.fetch(user.id);
-            //add recruit role from the user
-            await member.roles.add(recruitRole);
-            //add NATO role to the user
-            await member.roles.add(natoRole);
-            displayName = member.displayName; // This will be the nickname in the guild, or the username if no nickname is set
-        } catch (error) {
-            console.error('Error fetching member:', error);
-        }
 
         if (!document || !document.eval?.length || !document.evalChannel?.length) {
-            response({
-                content: `error. Not all required fields found in the database. Please run /recruit setup first.`,
+            return response({
+                content: `Error: Evaluation message or channel not set up. Please run \`/recruit setup\` or \`/recruit edit\`.`,
                 ephemeral: true,
             });
-            return;
         }
 
-        const currentDate = new Date();
-        
-        //new logic for cooldown toggle
-        if (sponsor !== 'None' && cooldownToggle) {
-            cooldown = new Date(currentDate);
-            cooldown.setHours(currentDate.getHours() + 12);
-        } else {
-            cooldown = new Date(currentDate);
-        }
-        
-        if (sponsor !== 'None') {
-            minEvalDate = new Date(currentDate);
-            minEvalDate.setDate(currentDate.getDate() + 7);
-        } else {
-            minEvalDate = new Date(currentDate);
-            minEvalDate.setDate(currentDate.getDate() + 14);
-        }
-
-        const unixTimestamp = Math.floor(minEvalDate.getTime() / 1000);
-        const cooldownTimestamp = Math.floor(cooldown.getTime() / 1000);
-        const eMessage = document.eval.replaceAll('<MEMBER>', displayName).replaceAll('<SPONSOR>', sponsor).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`).replaceAll('<MIN_EVAL>', minEvalValue).replaceAll('<COOLDOWN>', `<t:${cooldownTimestamp}:F>`);
-        const evalChannel = await guild.channels.fetch(document.evalChannel);
-
-        if (!evalChannel) {
-            response({
-                content: `error sending message. Incorrect channel id specified`,
-                ephemeral: true,
-            });
-            return;
+        const evalData = await generateEvalData({ interaction, guild, document });
+        if (!evalData.success) {
+            return response({ content: `Error: ${evalData.error}`, ephemeral: true });
         }
 
         try {
+            const evalChannel = await guild.channels.fetch(document.evalChannel);
             const evalMsg = await evalChannel.send({
-                content: `${eMessage}`,
-                allowedMentions: {
-                    roles: [],
-                    users: [],
-                },
-            })
+                content: evalData.eMessage,
+                allowedMentions: { roles: [], users: [] },
+            });
+
             await recruitMessagesSchema.findOneAndUpdate(
                 { _id: guild.id },
                 {
                     $push: {
                         evalMessages: {
                             messageId: evalMsg.id,
-                            sponsorId: typeof sponsor === 'object' ? sponsor.id : 'None',
-                            recruitId: user.id,
-                            minEvalDate: minEvalDate.setUTCHours(0, 0, 0, 0),
-                            cooldown: cooldown
+                            sponsorId: evalData.sponsorUser === 'None' ? 'None' : evalData.sponsorUser.id,
+                            recruitId: evalData.recruitUser.id,
+                            minEvalDate: evalData.minEvalDate.setUTCHours(0, 0, 0, 0),
+                            cooldown: evalData.cooldown
                         }
                     }
                 },
                 { upsert: true }
             );
-        } catch (err) {
-            response({
-                content: `error sending recruit eval message.`,
-                ephemeral: true,
-            });
-            return;
-        }
 
-        response({ content: `Recruit eval message sent.`, ephemeral: true });
+            response({ content: `Recruit eval message sent.`, ephemeral: true });
+
+        } catch (error) {
+            console.error('Error in send:recruit-eval:', error);
+            response({ content: `An error occurred while sending the evaluation message.`, ephemeral: true });
+        }
     },
     'send:recruit-promotion': async ({ interaction, handler, guild, response }) => {
         const user = interaction.options.getUser('promoted-user');
@@ -440,54 +402,25 @@ const subcommandHandlers = {
         response({ content: `**Preview:**\n${message}`, ephemeral: true });
     },
     'preview:eval-message': async ({ interaction, handler, guild, response }) => {
-        const user = interaction.options.getUser('recruited-user');
-        const sponsor = interaction.options.getUser('sponsor-user') ?? 'None';
-        const cooldownToggle = interaction.options.getBoolean('cooldown') ?? true;
-        const minEvalValue = sponsor === 'None' ? 8 : 6;
-        let displayName;
-        let cooldown;
-        let minEvalDate;
-        try {
-                const member = await guild.members.fetch(user.id);
-                displayName = member.displayName; // This will be the nickname in the guild, or the username if no nickname is set
-            } catch (error) {
-                console.error('Error fetching member:', error);
-            }
         const recruitMessagesSchema = getRecruitMessagesSchema(handler);
         const document = await recruitMessagesSchema.findOne({ _id: guild.id });
 
         if (!document || !document.eval?.length) {
-            response({
-                content: `eval message not found. Please set one with the /recruit edit recruit-eval`,
+            return response({
+                content: `Error: Evaluation message not found. Please set one with \`/recruit edit recruit-eval\`.`,
                 ephemeral: true,
             });
-            return;
-        }
-
-        const currentDate = new Date();
-        
-        //new cooldown toggle
-        if (sponsor !== 'None' && cooldownToggle) {
-            cooldown = new Date(currentDate);
-            cooldown.setHours(currentDate.getHours() + 12);
-        } else {
-            cooldown = new Date(currentDate);
         }
         
-        if (sponsor !== 'None') {
-            minEvalDate = new Date(currentDate);
-            minEvalDate.setDate(currentDate.getDate() + 7);
-        } else {
-            minEvalDate = new Date(currentDate);
-            minEvalDate.setDate(currentDate.getDate() + 14);
+        const evalData = await generateEvalData({ interaction, guild, document });
+        if (!evalData.success) {
+            return response({ content: `Error: ${evalData.error}`, ephemeral: true });
         }
 
-        const unixTimestamp = Math.floor(minEvalDate.getTime() / 1000);
-        const cooldownTimestamp = Math.floor(cooldown.getTime() / 1000);
-
-        const message = document.eval.replaceAll('<MEMBER>', displayName).replaceAll('<SPONSOR>', sponsor).replaceAll('<DATE>', `<t:${unixTimestamp}:D>`).replaceAll('<MIN_EVAL>', minEvalValue).replaceAll('<COOLDOWN>', `<t:${cooldownTimestamp}:F>`);
-                
-        response({ content: `**Preview:**\n${message}`, ephemeral: true });
+        response({
+            content: `**Preview:**\n${evalData.eMessage}`,
+            ephemeral: true,
+        });
     },
     'preview:recruit-promotion': async ({ interaction, handler, guild, response }) => {
         const member = interaction.options.getUser('promoted-user');
