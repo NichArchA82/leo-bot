@@ -5,7 +5,7 @@
 import CommandTypes from 'command-handler/src/cmd-handler/command-types.js';
 import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
 //import the tasks denfined in the tasks folder.
-import { recruit, evalTask } from '../tasks/index.js';
+import { recruit, evalTask, channelPurge } from '../tasks/index.js';
 
 export default {
     description: 'Run scheduled tasks on command',
@@ -21,6 +21,11 @@ export default {
         {
             name: 'recruit',
             description: 'run the recruit task',
+            type: ApplicationCommandOptionType.Subcommand,
+        },
+        {
+            name: 'channel-purge',
+            description: 'run the channel purge task',
             type: ApplicationCommandOptionType.Subcommand,
         }
     ],
@@ -55,6 +60,13 @@ export default {
                 recruit({ client: handler.client, handler, guildID: interaction.guildId });
                 response({
                     content: 'recruit task executed',
+                    ephemeral: true,
+                });
+            },
+            'channel-purge': () => {
+                channelPurge({ client: handler.client, handler, channel: interaction.channelId });
+                response({
+                    content: 'channel is now being purged of all messages that are not pinned and older than the current date',
                     ephemeral: true,
                 });
             }
