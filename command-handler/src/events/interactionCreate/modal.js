@@ -21,15 +21,16 @@ export default async ({ eventArgs, handler }) => {
         const labels = issueType ? [ issueType, 'leo-bot' ] : [ 'leo-bot' ];
 
         try {
-            await axios.post(`https://api.github.com/repos/${process.env.ISSUE_REPO}/issues`, 
+            const labelIds = await getGiteaLabelIds(labels);
+            await axios.post(`${process.env.ISSUE_REPO}/issues`, 
                 {
                     "title": issueTitle,
                     "body": issueDescription,
-                    "labels": labels
+                    "labels": labelIds,
+                    "projects": [1]
                 }, {
                 headers: {
-                    'Authorization': `token ${process.env.GITHUB_TOKEN}`,
-                    'Accept': 'application/vnd.github.v3+json',
+                    'Authorization': `token ${process.env.REPO_TOKEN}`,
                     'Content-Type': 'application/json'
                 }
             });
@@ -39,7 +40,7 @@ export default async ({ eventArgs, handler }) => {
                 ephemeral: true
             });
         } catch (error) {
-            log.error('Error creating issue in GitHub', { message: error.message, stack: error.stack });
+            log.error('Error creating issue:', { message: error.message, stack: error.stack });
             interaction.reply({
                 content: 'Failed to create the issue',
                 ephemeral: true
@@ -47,3 +48,13 @@ export default async ({ eventArgs, handler }) => {
         }
     }
 };
+
+async function getGiteaLabelIds(labelNames) {
+    const res = await axios.get(`${process.env.ISSUE_REPO}/labels`, {
+        headers: { 'Authorization': `token ${process.env.REPO_TOKEN}` }
+    });
+    const allLabels = res.data;
+    return allLabels
+        .filter(l => labelNames.includes(l.name))
+        .map(l => l.id);
+}
