@@ -1,5 +1,5 @@
 /*
-    This command is used to report issues with Leo Bot to GitHub
+    This command is used to report issues with Leo Bot
 */
 
 import CommandTypes from 'command-handler/src/cmd-handler/command-types.js';
@@ -21,7 +21,7 @@ export default {
     ],
 
     autoComplete: () => {
-        return ['bug', 'enhancement'];
+        return ['Kind/Bug', 'Kind/Enhancement'];
     },
 
     run: async ({ response, handler, interaction }) => {

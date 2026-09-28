@@ -5,7 +5,7 @@
 import CommandTypes from 'command-handler/src/cmd-handler/command-types.js';
 import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
 //import the tasks denfined in the tasks folder.
-import { recruit, evalTask, channelPurge } from '../tasks/index.js';
+// import { recruit, evalTask, channelPurge } from '../tasks/index.js';
 
 export default {
     description: 'Run scheduled tasks on command',
