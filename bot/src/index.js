@@ -25,7 +25,7 @@ const client = new Client({
 });
 
 //When the bot is ready, connect to the database and initialize the command handler
-client.once('ready', async () => {
+client.once('clientReady', async () => {
     log.info('Bot is ready');
 
     const connection = await mongoose.connect(process.env.MONGO_URI);
