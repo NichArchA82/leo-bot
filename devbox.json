@@ -1,0 +1,18 @@
+{
+  "$schema":  "https://raw.githubusercontent.com/jetify-com/devbox/0.18.4/.schema/devbox.schema.json",
+  "packages": ["nodejs@latest"],
+  "env": {
+    "NPM_CONFIG_PREFIX": "$HOME/.npm-global"
+  },
+  "shell": {
+    "init_hook": [
+      "export PATH=\"$NPM_CONFIG_PREFIX/bin:$PATH\"",
+      "mkdir -p \"$NPM_CONFIG_PREFIX\""
+    ],
+    "scripts": {
+      "test": [
+        "echo \"Error: no test specified\" && exit 1"
+      ]
+    }
+  }
+}
